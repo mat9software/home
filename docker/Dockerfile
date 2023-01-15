@@ -47,6 +47,5 @@ RUN git config --global --add safe.directory /srv
 RUN echo 'export EDITOR=vim'
 RUN echo "alias sf='find -iname \"\$@\"'"
 
-#git config --global user.name ""
-#git config --global user.email ""
-
+#RUN git config --global user.name ""
+#RUN git config --global user.email ""
