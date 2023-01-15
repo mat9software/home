@@ -229,6 +229,6 @@ auto downloadFailed = [](emscripten_fetch_t *fetch) {
   attr.attributes = EMSCRIPTEN_FETCH_LOAD_TO_MEMORY;
   attr.onsuccess = downloadSucceeded;
   attr.onerror = downloadFailed;
-  emscripten_fetch(&attr, "myfile.dat");
+  emscripten_fetch(&attr, "https://query1.finance.yahoo.com/v8/finance/chart/aapl?metrics=high?&interval=1d&range=5d");
 
 }
