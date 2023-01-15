@@ -1,0 +1,50 @@
+" ---------- NEEDED?? ----------
+set wildmode=longest,list,full
+set wildmenu
+" ---------- NEEDED?? ----------
+
+" ---------- CONFIG ----------
+
+set nocompatible
+set number
+set tabstop=1
+set shiftwidth=1
+set expandtab
+set incsearch
+set hlsearch
+set clipboard+=unnamed
+"syntax on
+
+" Filename as status line.
+set statusline=%F
+set laststatus=2
+
+" ---------- HOTKEYS ----------
+
+" Switch between header and source file.
+map <F4> :e %:p:s,.h$,.X123X,:s,.cpp$,.h,:s,.X123X$,.cpp,<CR>
+
+map <F8> O//mdtmp
+map <F12> :qa<CR>
+map <C-e> :tabe 
+
+" ---------- CLANG-FORMAT ----------
+map <C-K> :!clang-format -style=Google -assume-filename=@%<cr>
+
+" Switch between header and source file.
+"map <F9> :tabe /tmp/gdb.out <CR>
+
+" ??????????????????
+"autocmd FileType * setlocal formatoptions-=c formatoptions-=r formatoptions-=o
+
+" ---------- TAG ----------
+set tags=tags
+" Tag on a new Tab
+map <C-\> :tab split<CR>:exec("tag ".expand("<cword>"))<CR>
+
+" Vim jump to the last position when reopening a file
+if has("autocmd")
+  au BufReadPost * if line("'\"") > 0 && line("'\"") <= line("$")
+    \| exe "normal! g'\"" | endif
+endif
+
