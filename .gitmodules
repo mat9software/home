@@ -1,0 +1,3 @@
+[submodule "stocks/imgui"]
+	path = stocks/imgui
+	url = https://github.com/ocornut/imgui.git
