@@ -18,6 +18,7 @@ CXX = em++
 WEB_DIR = web
 EXE = $(WEB_DIR)/index.html
 IMGUI_DIR = imgui/
+RAPID_JSON_DIR = rapidjson/include
 BUILD_DIR = build
 SOURCES = main.cpp dockspace.cpp stocks.cpp
 SOURCES += $(IMGUI_DIR)/imgui.cpp $(IMGUI_DIR)/imgui_demo.cpp $(IMGUI_DIR)/imgui_draw.cpp $(IMGUI_DIR)/imgui_tables.cpp $(IMGUI_DIR)/imgui_widgets.cpp
@@ -58,7 +59,7 @@ endif
 ## FINAL BUILD FLAGS
 ##---------------------------------------------------------------------
 
-CPPFLAGS += -I$(IMGUI_DIR) -I$(IMGUI_DIR)/backends
+CPPFLAGS += -I$(RAPID_JSON_DIR) -I$(IMGUI_DIR) -I$(IMGUI_DIR)/backends
 #CPPFLAGS += -g
 CPPFLAGS += -Wall -Wformat -Os $(EMS)
 LDFLAGS += --shell-file shell_minimal.html $(EMS)

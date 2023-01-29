@@ -12,14 +12,19 @@
 #include "imgui_impl_opengl3.h"
 #include "dockspace.h"
 #include "stocks.h"
+#include "rapidjson/document.h"
 #include <stdio.h>
 #include <emscripten.h>
 #include <SDL.h>
 #include <SDL_opengles2.h>
 
+
+
 #include <stdio.h>
 #include <string.h>
 #include <emscripten/fetch.h>
+
+using namespace rapidjson;
 
 // Emscripten requires to have full control over the main loop. We're going to store our SDL book-keeping variables globally.
 // Having a single function that acts as a loop prevents us to store state in the stack of said function. So we need some location for this.
@@ -218,6 +223,18 @@ auto downloadSucceeded = [](emscripten_fetch_t *fetch) {
     printf("%c", fetch->data[i]);
   }
   printf("\n");
+
+
+
+  Document document;
+  char buffer[fetch->numBytes];
+  memcpy(buffer, fetch->data, fetch->numBytes);
+  if (!document.ParseInsitu(buffer).HasParseError()) {
+    //mdtmp TODO
+    // https://github.com/Tencent/rapidjson/blob/master/example/tutorial/tutorial.cpp
+  } else {
+    printf("Json Parser Error.");
+  }
   //snprintf(fetch->data, fetch->numBytes, "%s");
   // The data is now available at fetch->data[0] through fetch->data[fetch->numBytes-1];
   emscripten_fetch_close(fetch); // Free data associated with the fetch.
