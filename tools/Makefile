@@ -16,6 +16,11 @@ OBJS += create_cpp.cpp
 DEFINES += -DPROGRAM_CREATE_CPP
 EXE = create_cpp.out
 endif
+ifeq ($(PROGRAM), hello)
+OBJS += hello.cpp
+DEFINES += -DPROGRAM_HELLO
+EXE = hello.out
+endif
 
 all: $(BUILD_DIR)/$(EXE)
 

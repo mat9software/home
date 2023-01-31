@@ -5,6 +5,10 @@
 #include <string.h>
 #include <ctype.h>
 
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+
 
 int print_help() {
   printf("Create a cpp file unit\n");
@@ -16,10 +20,15 @@ int print_help() {
 int create_cpp_file_unit(const char* name) {
   printf("Creating cpp file unit named : %s\n", name);
 
+  struct stat st = {0};
+
+  if (stat("out", &st) == -1) {
+      mkdir("out", 0700);
+  }
   {
     char buffer[100];
     int cx;  // FIXME Check return value.
-    cx = snprintf(buffer, 100, "%s.cpp", name);
+    cx = snprintf(buffer, 100, "out/%s.cpp", name);
 
     FILE* fp;
 
@@ -31,7 +40,7 @@ int create_cpp_file_unit(const char* name) {
   {
     char file_open_buf[100];
     int cx;  // FIXME Check return value.
-    cx = snprintf(file_open_buf, 100, "%s.h", name);
+    cx = snprintf(file_open_buf, 100, "out/%s.h", name);
 
     char file_name_buf[100];
     cx = snprintf(file_name_buf, 100, "%s", name);
