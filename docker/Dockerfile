@@ -39,15 +39,16 @@ RUN apt install -y cmake tmux
 
 RUN apt install -y clang-format locate universal-ctags
 
-COPY vimrc /root/.vimrc
-COPY vimrc /root/.gdbinit
-
 RUN git config --global --add safe.directory /srv
 
 RUN echo 'export EDITOR=vim'
 RUN echo "alias sf='find -iname \"\$@\"'"
 
-RUN apt install gdb
+RUN apt install -y gdb
+
+
+COPY vimrc /root/.vimrc
+COPY vimrc /root/.gdbinit
 
 #RUN git config --global user.name ""
 #RUN git config --global user.email ""

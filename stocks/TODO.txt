@@ -1,5 +1,19 @@
 ---------- TODO ----------
+#2 START
+Summary : Move UI code to ui.cpp.
+#2 END
 
+#3 START
+Summary : Finish parsing the yahoo request.
+#3 END
+
+#4 START
+Summary : Integrate the yahoo data to a UI graph.
+#4 END
+
+#5 START
+Summary : Design & plan the interaction between those module.
+#5 END
 
 ---------- BUGS ----------
 
