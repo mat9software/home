@@ -17,10 +17,11 @@ CC = emcc
 CXX = em++
 WEB_DIR = web
 EXE = $(WEB_DIR)/index.html
+SRC_DIR = src/
 IMGUI_DIR = imgui/
 RAPID_JSON_DIR = rapidjson/include
 BUILD_DIR = build
-SOURCES = main.cpp dockspace.cpp stocks.cpp
+SOURCES = $(SRC_DIR)/main.cpp $(SRC_DIR)/dockspace.cpp $(SRC_DIR)/stocks.cpp $(SRC_DIR)/fetch.cpp $(SRC_DIR)/ui.cpp $(SRC_DIR)/data.cpp
 SOURCES += $(IMGUI_DIR)/imgui.cpp $(IMGUI_DIR)/imgui_demo.cpp $(IMGUI_DIR)/imgui_draw.cpp $(IMGUI_DIR)/imgui_tables.cpp $(IMGUI_DIR)/imgui_widgets.cpp
 SOURCES += $(IMGUI_DIR)/backends/imgui_impl_sdl.cpp $(IMGUI_DIR)/backends/imgui_impl_opengl3.cpp
 OBJS = $(addprefix $(BUILD_DIR)/, $(addsuffix .o, $(basename $(notdir $(SOURCES)))))
@@ -59,7 +60,7 @@ endif
 ## FINAL BUILD FLAGS
 ##---------------------------------------------------------------------
 
-CPPFLAGS += -I$(RAPID_JSON_DIR) -I$(IMGUI_DIR) -I$(IMGUI_DIR)/backends
+CPPFLAGS += -I$(SRC_DIR) -I$(RAPID_JSON_DIR) -I$(IMGUI_DIR) -I$(IMGUI_DIR)/backends
 #CPPFLAGS += -g
 CPPFLAGS += -Wall -Wformat -Os $(EMS)
 LDFLAGS += --shell-file shell_minimal.html $(EMS)
@@ -69,7 +70,7 @@ LDFLAGS += --shell-file shell_minimal.html $(EMS)
 ##---------------------------------------------------------------------
 
 
-$(BUILD_DIR)/%.o:%.cpp
+$(BUILD_DIR)/%.o:$(SRC_DIR)%.cpp
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c -o $@ $<
 
 $(BUILD_DIR)/%.o:$(IMGUI_DIR)/%.cpp

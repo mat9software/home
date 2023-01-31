@@ -1,0 +1,16 @@
+---------- TODO ----------
+
+
+---------- BUGS ----------
+
+#1 START
+Summary : Python http server block cross-origin in browser.
+
+Details : We need to figure out how we can call a different origin from the wasm client code without blocking. Is it a problem with the server?
+
+Impact : Not blocking for dev. Blocking for prod.
+
+Workaround : Use chrome in unsafe mode (allow cross-origin mode)
+
+#1 END
+
