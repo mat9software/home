@@ -1,7 +1,7 @@
 #ifndef COMMON_ASSERT_H
 #define COMMON_ASSERT_H
 
-#include "common/log.h"
+#include "log.h"
 
 #include <assert.h>
 

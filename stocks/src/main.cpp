@@ -1,12 +1,3 @@
-// Dear ImGui: standalone example application for Emscripten, using SDL2 + OpenGL3
-// (Emscripten is a C++-to-javascript compiler, used to publish executables for the web. See https://emscripten.org/)
-// If you are new to Dear ImGui, read documentation from the docs/ folder + read the top of imgui.cpp.
-// Read online: https://github.com/ocornut/imgui/tree/master/docs
-
-// This is mostly the same code as the SDL2 + OpenGL3 example, simply with the modifications needed to run on Emscripten.
-// It is possible to combine both code into a single source file that will compile properly on Desktop and using Emscripten.
-// See https://github.com/ocornut/imgui/pull/2492 as an example on how to do just that.
-
 #include "imgui.h"
 #include "imgui_impl_sdl.h"
 #include "imgui_impl_opengl3.h"
@@ -19,19 +10,17 @@
 #include <SDL_opengles2.h>
 
 
-
 // Emscripten requires to have full control over the main loop. We're going to store our SDL book-keeping variables globally.
 // Having a single function that acts as a loop prevents us to store state in the stack of said function. So we need some location for this.
 SDL_Window*     g_Window = NULL;
 SDL_GLContext   g_GLContext = NULL;
 
-// For clarity, our main loop code is declared at the end.
 static void main_loop(void*);
-static void test_function();
+static void run_test();
 
 int main(int, char**)
 {
-    test_function();
+    run_test();
 
     // Setup SDL
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_GAMECONTROLLER) != 0)
@@ -136,10 +125,9 @@ static void main_loop(void* arg)
     ImGui_ImplSDL2_NewFrame();
     ImGui::NewFrame();
 
-    ShowDockSpace();
+    dockspace_show();
 
     ui_show();
-
 
     // Rendering
     ImGui::Render();
@@ -151,7 +139,7 @@ static void main_loop(void* arg)
     SDL_GL_SwapWindow(g_Window);
 }
 
-static void test_function()
+static void run_test()
 {
   fetch_test();
 }

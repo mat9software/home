@@ -2,7 +2,7 @@
 
 #include "imgui.h"
 
-void ShowDockSpace() {
+void dockspace_show() {
     // If you strip some features of, this demo is pretty much equivalent to calling DockSpaceOverViewport()!
 // In most cases you should be able to just call DockSpaceOverViewport() and ignore all the code below!
 // In this specific demo, we are not using DockSpaceOverViewport() because:

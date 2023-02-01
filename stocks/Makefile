@@ -17,6 +17,7 @@ CC = emcc
 CXX = em++
 WEB_DIR = web
 EXE = $(WEB_DIR)/index.html
+COMMON_DIR = ../
 SRC_DIR = src/
 IMGUI_DIR = imgui/
 RAPID_JSON_DIR = rapidjson/include
@@ -60,7 +61,7 @@ endif
 ## FINAL BUILD FLAGS
 ##---------------------------------------------------------------------
 
-CPPFLAGS += -I$(SRC_DIR) -I$(RAPID_JSON_DIR) -I$(IMGUI_DIR) -I$(IMGUI_DIR)/backends
+CPPFLAGS += -I$(COMMON_DIR) -I$(SRC_DIR) -I$(RAPID_JSON_DIR) -I$(IMGUI_DIR) -I$(IMGUI_DIR)/backends
 #CPPFLAGS += -g
 CPPFLAGS += -Wall -Wformat -Os $(EMS)
 LDFLAGS += --shell-file shell_minimal.html $(EMS)

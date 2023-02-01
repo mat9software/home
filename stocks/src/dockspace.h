@@ -1,7 +1,7 @@
 #ifndef DOCKSPACE_H
 #define DOCKSPACE_H
 
-void ShowDockSpace();
+void dockspace_show();
 
 #endif //DOCKSPACE_H
 
