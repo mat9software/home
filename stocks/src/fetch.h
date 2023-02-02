@@ -6,6 +6,6 @@
 
 void fetch_test();
 
-void fetch1(std::function<void(const std::vector<double>)>& cb);
+void fetch1(std::function<void(const std::vector<float>)>& cb);
 
 #endif //FETCH_H

@@ -4,14 +4,21 @@
 
 #include "fetch.h"
 #include "imgui.h"
+namespace {
+  std::vector<float> graph_values = {0.6f, 0.1f, 1.0f, 0.5f, 0.92f, 0.1f, 0.2f};
+  float graph_min = -1.0f;
+  float graph_max = 1.0f;
 
-static std::function<void(const std::vector<double>)> test_cb =
-    [](const std::vector<double> vec) {
-      printf("debug1mdtmp");
-      for (auto e : vec) {
-        printf("%f\n", e);
-      }
+  std::function<void(const std::vector<float>)> graph_cb =
+    [](const std::vector<float> vec) {
+      graph_values = vec;
+      const auto min = *min_element(vec.begin(), vec.end());
+      const auto max = *max_element(vec.begin(), vec.end());
+      graph_min = min - (abs(min)*0.1);
+      graph_max = max + (abs(max)*0.1);
     };
+}
+
 
 void ui_show() {
   static bool show_demo_window = true;
@@ -22,15 +29,14 @@ void ui_show() {
 
   ImGui::Text("This is some useful text.");
   if (ImGui::Button("Button")) {
-    fetch1(test_cb);
+    fetch1(graph_cb);
   }
 
   ImGui::Text("Time %.1f", ImGui::GetTime());
 
-  static float values[] = {0.6f, 0.1f, 1.0f, 0.5f, 0.92f, 0.1f, 0.2f};
   int stride = sizeof(float);
-  ImGui::PlotLines("Lines", values, IM_ARRAYSIZE(values), 0.0f, nullptr, -1.0f,
-                   1.0f, ImVec2(0, 80.0f), stride);
+  ImGui::PlotLines("Lines", graph_values.data(), graph_values.size(), 0.0f, nullptr, graph_min,
+                   graph_max, ImVec2(0, 80.0f), stride);
 
   ImGui::End();
 }

@@ -11,28 +11,32 @@
 #include <string>
 
 namespace {
-  std::string mdtmpstring = "mdtmp test str";
-
   void on_fetch_failed(emscripten_fetch_t *fetch) {
-    printf("Downloading %s failed, HTTP failure status code: %d.\n", fetch->url,
+    LOG_ERROR("Downloading %s failed, HTTP failure status code: %d.\n", fetch->url,
            fetch->status);
     emscripten_fetch_close(fetch);  // Also free data on failure.
   };
 
   void on_fetch_success(emscripten_fetch_t *fetch) {
+
+//mdtmp debug
+/*
     printf("Finished downloading %llu bytes from URL %s.\n", fetch->numBytes,
            fetch->url);
     for (int i = 0; i < fetch->numBytes; i++) {
       printf("%c", fetch->data[i]);
     }
     printf("\n");
+*/
 
     rapidjson::Document document;
     char buffer[fetch->numBytes];
     memcpy(buffer, fetch->data, fetch->numBytes);
 
-    // The data is now available at fetch->data[0] through
-    // fetch->data[fetch->numBytes-1];
+    std::function<void(const std::vector<float>)> &user_callback =
+        *static_cast<std::function<void(const std::vector<float>)> *>(
+            fetch->userData);
+
     emscripten_fetch_close(fetch);  // Free data associated with the fetch.
 
     if (document.ParseInsitu(buffer).HasParseError()) {
@@ -113,169 +117,23 @@ namespace {
     const int size =
         document["chart"]["result"][0]["indicators"]["quote"][0]["close"]
             .Size();
-    std::vector<double> ret;
+    std::vector<float> ret;
     for (int i = 1; i < size; i++) {
       ret.push_back(
           document["chart"]["result"][0]["indicators"]["quote"][0]["close"][i]
-              .GetDouble());
+              .GetFloat());
     }
 
-/*
-    std::function<void(const std::vector<double>)> &callback =
-        *static_cast<std::function<void(const std::vector<double>)> *>(
-            fetch->userData);
-printf("%p\n", fetch->userData);
-printf("%s\n", static_cast<std::string*>(fetch->userData)->c_str());
-//printf("%p\n", &callback);
-    printf("mdtmp1\n");
-    //callback(ret);
-    printf("mdtmp2\n");
-*/
+    user_callback(ret);
   };
 }
 
-/*
-void fetch_test() {
-  auto downloadSucceeded = [](emscripten_fetch_t *fetch) {
-    printf("Finished downloading %llu bytes from URL %s.\n", fetch->numBytes,
-           fetch->url);
-    for (int i = 0; i < fetch->numBytes; i++) {
-      printf("%c", fetch->data[i]);
-    }
-    printf("\n");
-
-    rapidjson::Document document;
-    char buffer[fetch->numBytes];
-    memcpy(buffer, fetch->data, fetch->numBytes);
-
-    // The data is now available at fetch->data[0] through
-    // fetch->data[fetch->numBytes-1];
-    emscripten_fetch_close(fetch);  // Free data associated with the fetch.
-
-    if (document.ParseInsitu(buffer).HasParseError()) {
-      LOG_ERROR("Json Parser Error.");
-      return;
-    }
-
-    if (!document.IsObject()) {
-      LOG_ERROR("Parsing fetch failed.");
-      return;
-    }
-
-    if (!document.HasMember("chart")) {
-      LOG_ERROR("Parsing fetch failed.");
-      return;
-    }
-
-    if (!document["chart"].IsObject()) {
-      LOG_ERROR("Parsing fetch failed.");
-      return;
-    }
-
-    if (!document["chart"].HasMember("result")) {
-      LOG_ERROR("Parsing fetch failed.");
-      return;
-    }
-
-    if (!document["chart"]["result"].IsArray()) {
-      LOG_ERROR("Parsing fetch failed.");
-      return;
-    }
-
-    if (!(document["chart"]["result"].Size() > 0)) {
-      LOG_ERROR("Parsing fetch failed.");
-      return;
-    }
-
-    if (!document["chart"]["result"][0].IsObject()) {
-      LOG_ERROR("Parsing fetch failed.");
-      return;
-    }
-
-    if (!document["chart"]["result"][0].HasMember("indicators")) {
-      LOG_ERROR("Parsing fetch failed.");
-      return;
-    }
-
-    if (!document["chart"]["result"][0]["indicators"].IsObject()) {
-      LOG_ERROR("Parsing fetch failed.");
-      return;
-    }
-    if (!document["chart"]["result"][0]["indicators"].HasMember("quote")) {
-      LOG_ERROR("Parsing fetch failed.");
-      return;
-    }
-    if (!document["chart"]["result"][0]["indicators"]["quote"].IsArray()) {
-      LOG_ERROR("Parsing fetch failed.");
-      return;
-    }
-    if (!(document["chart"]["result"][0]["indicators"]["quote"].Size() > 0)) {
-      LOG_ERROR("Parsing fetch failed.");
-      return;
-    }
-    if (!document["chart"]["result"][0]["indicators"]["quote"][0].IsObject()) {
-      LOG_ERROR("Parsing fetch failed.");
-      return;
-    }
-    if (!document["chart"]["result"][0]["indicators"]["quote"][0].HasMember(
-            "close")) {
-      LOG_ERROR("Parsing fetch failed.");
-      return;
-    }
-    if (!document["chart"]["result"][0]["indicators"]["quote"][0]["close"]
-             .IsArray()) {
-      LOG_ERROR("Parsing fetch failed.");
-      return;
-    }
-    const int size =
-        document["chart"]["result"][0]["indicators"]["quote"][0]["close"]
-            .Size();
-    for (int i = 1; i < size; i++) {
-      printf(
-          "%f\n",
-          document["chart"]["result"][0]["indicators"]["quote"][0]["close"][i]
-              .GetDouble());
-    }
-  };
-
-  auto downloadFailed = [](emscripten_fetch_t *fetch) {
-    printf("Downloading %s failed, HTTP failure status code: %d.\n", fetch->url,
-           fetch->status);
-    emscripten_fetch_close(fetch);  // Also free data on failure.
-  };
-
+void fetch1(std::function<void(const std::vector<float>)> &cb) {
   emscripten_fetch_attr_t attr;
   emscripten_fetch_attr_init(&attr);
   strcpy(attr.requestMethod, "GET");
   attr.attributes = EMSCRIPTEN_FETCH_LOAD_TO_MEMORY;
-  attr.onsuccess = downloadSucceeded;
-  attr.onerror = downloadFailed;
-  emscripten_fetch(&attr,
-                   "https://query1.finance.yahoo.com/v8/finance/chart/"
-                   "aapl?metrics=high?&interval=1d&range=5d");
-}
-*/
-
-void fetch1(std::function<void(const std::vector<double>)> &cb) {
-//mdtmp
-  auto downloadSucceeded = [](emscripten_fetch_t *fetch) {
-
-  printf("After callback mdtmp\n");
-  printf("%p\n", fetch->userData);
-  std::function<void(const std::vector<double>)> &callback =
-        *static_cast<std::function<void(const std::vector<double>)> *>(fetch->userData);
-  printf("%p\n", &callback);
-
-  std::vector<double> tmp;
-  tmp.push_back(2.0);
-  callback(tmp);
-};
-  emscripten_fetch_attr_t attr;
-  emscripten_fetch_attr_init(&attr);
-  strcpy(attr.requestMethod, "GET");
-  attr.attributes = EMSCRIPTEN_FETCH_LOAD_TO_MEMORY;
-  //mdtmp attr.onsuccess = on_fetch_success;
-  attr.onsuccess = downloadSucceeded;
+  attr.onsuccess = on_fetch_success;
   attr.onerror = on_fetch_failed;
   attr.userData = &cb;
 
