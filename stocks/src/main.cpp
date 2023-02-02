@@ -141,5 +141,5 @@ static void main_loop(void* arg)
 
 static void run_test()
 {
-  fetch_test();
+  //mdtmp fetch_test();
 }
