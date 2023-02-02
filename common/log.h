@@ -10,11 +10,16 @@
 
 #ifdef DEBUG_TRACE
 #define LOG_TRACE(...)                                     \
-  fprintf(stderr, "trace : %s:%d : ", __FILE__, __LINE__); \
-  fprintf(stderr, __VA_ARGS__);                            \
-  fprintf(stderr, "\n");
+  fprintf(stdout, "trace : %s:%d : ", __FILE__, __LINE__); \
+  fprintf(stdout, __VA_ARGS__);                            \
+  fprintf(stdout, "\n");
 #else
 #define LOG_TRACE(...) do { } while(0)
 #endif
+
+#define LOG_INFO(...)                                     \
+  fprintf(stdout, "info : %s:%d : ", __FILE__, __LINE__); \
+  fprintf(stdout, __VA_ARGS__);                            \
+  fprintf(stdout, "\n");
 
 #endif // COMMON_LOG_H

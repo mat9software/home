@@ -1,14 +1,30 @@
 #include "ui.h"
 
+#include "common/log.h"
 #include <stdio.h>
 
 #include "fetch.h"
 #include "imgui.h"
 namespace {
-  std::vector<float> graph_values = {0.6f, 0.1f, 1.0f, 0.5f, 0.92f, 0.1f, 0.2f};
+//TODO 
+//     1- Use vector of graph_data to scale many stock graph. 
+//     each one with a close button and input text.
+//
+//     2- Interval time will be global and update all graph at once.
+  struct graph_data {
+     std::vector<float> values = {};
+     float min = -1.0f;
+     float max = 1.0f;
+     char stock_symbol[128] = "aapl";
+  };
+  std::vector<graph_data> graph_datas;
+
+  std::vector<float> graph_values = {};
   float graph_min = -1.0f;
   float graph_max = 1.0f;
+  char stock_symbol[128] = "aapl";
 
+//---------------------------------------------
   std::function<void(const std::vector<float>)> graph_cb =
     [](const std::vector<float> vec) {
       graph_values = vec;
@@ -19,80 +35,28 @@ namespace {
     };
 }
 
-
+//---------------------------------------------
 void ui_show() {
-  static bool show_demo_window = true;
+  static bool show_demo_window = false;
 
   if (show_demo_window) ImGui::ShowDemoWindow(&show_demo_window);
 
   ImGui::Begin("Stocks");
 
-  ImGui::Text("This is some useful text.");
-  if (ImGui::Button("Button")) {
-    fetch1(graph_cb);
+  ImGui::Checkbox("Show Demo Window?", &show_demo_window);
+
+  ImGui::InputText("Stock Symbol", stock_symbol, IM_ARRAYSIZE(stock_symbol));
+
+  if (ImGui::Button("Load")) {
+    fetch1({.symbol_name = stock_symbol, .success_cb = graph_cb});
   }
 
   ImGui::Text("Time %.1f", ImGui::GetTime());
 
   int stride = sizeof(float);
   ImGui::PlotLines("Lines", graph_values.data(), graph_values.size(), 0.0f, nullptr, graph_min,
-                   graph_max, ImVec2(0, 80.0f), stride);
+                   graph_max, ImVec2(0, 200.0f), stride);
 
   ImGui::End();
 }
 
-/*
-void ui_show()
-{
-    static bool show_demo_window = true;
-    static bool show_another_window = false;
-
-    if (show_demo_window)
-        ImGui::ShowDemoWindow(&show_demo_window);
-
-    {
-        static float f = 0.0f;
-        static int counter = 0;
-
-        ImGui::Begin("Hello, world!");
-
-        ImGui::Text("This is some useful text.");
-        ImGui::Text("Test");
-        ImGui::Checkbox("Demo Window", &show_demo_window);
-        ImGui::Checkbox("Another Window", &show_another_window);
-
-        ImGui::SliderFloat("float", &f, 0.0f, 1.0f);
-
-        if (ImGui::Button("Button"))
-            counter++;
-        ImGui::SameLine();
-        ImGui::Text("counter = %d", counter);
-
-        ImGui::Text("Hola Carlos");
-        ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f /
-ImGui::GetIO().Framerate, ImGui::GetIO().Framerate); ImGui::Text("Super Time
-%.1f", ImGui::GetTime());
-
-// Draw a Rectangle primitive
-        //ImDrawList* draw_list = ImGui::GetWindowDrawList();
-        //ImVec4 colf = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
-        //const ImU32 col = ImColor(colf);
-//
-        //ImVec2 p0 = ImGui::GetCursorScreenPos();
-        //ImVec2 p1 = ImVec2(p0.x + 200.0f, p0.y + 200.0f);
-        //draw_list->AddRectFilled(p0, p1, col, 10.0f);
-//
-        static float values[] = { 0.6f, 0.1f, 1.0f, 0.5f, 0.92f, 0.1f, 0.2f };
-        ImGui::PlotLines("Lines", values, IM_ARRAYSIZE(values), 0.0f, nullptr,
--1.0f, 1.0f, ImVec2(0, 80.0f));
-
-
-        ImGui::End();
-    }
-
-    if (show_another_window)
-    {
-        show_stocks();
-    }
-}
-*/

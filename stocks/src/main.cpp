@@ -18,6 +18,7 @@ SDL_GLContext   g_GLContext = NULL;
 static void main_loop(void*);
 static void run_test();
 
+//---------------------------------------------
 int main(int, char**)
 {
     run_test();
@@ -99,6 +100,7 @@ int main(int, char**)
     emscripten_set_main_loop_arg(main_loop, NULL, 0, true);
 }
 
+//---------------------------------------------
 static void main_loop(void* arg)
 {
     ImGuiIO& io = ImGui::GetIO();
@@ -138,7 +140,6 @@ static void main_loop(void* arg)
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
     SDL_GL_SwapWindow(g_Window);
 }
-
 static void run_test()
 {
   //mdtmp fetch_test();
