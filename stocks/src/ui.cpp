@@ -1,61 +1,81 @@
 #include "ui.h"
 
 #include "common/log.h"
+#include "data.h"
 #include <stdio.h>
 
 #include "fetch.h"
 #include "imgui.h"
 namespace {
-//TODO 
-//     1- Use vector of graph_data to scale many stock graph. 
-//     each one with a close button and input text.
-//
-//     2- Interval time will be global and update all graph at once.
-  struct graph_data {
-     std::vector<float> values = {};
-     float min = -1.0f;
-     float max = 1.0f;
-     char stock_symbol[128] = "aapl";
-  };
   std::vector<graph_data> graph_datas;
 
-  std::vector<float> graph_values = {};
-  float graph_min = -1.0f;
-  float graph_max = 1.0f;
-  char stock_symbol[128] = "aapl";
-
-//---------------------------------------------
-  std::function<void(const std::vector<float>)> graph_cb =
-    [](const std::vector<float> vec) {
-      graph_values = vec;
+  std::function<void(const graph_add& add)> graph_cb =
+    [](const graph_add& add) {
+      const auto& vec = add.values;
+      graph_datas[add.index].values = vec;
       const auto min = *min_element(vec.begin(), vec.end());
       const auto max = *max_element(vec.begin(), vec.end());
-      graph_min = min - (abs(min)*0.1);
-      graph_max = max + (abs(max)*0.1);
+      graph_datas[add.index].min = min - (abs(min)*0.1);
+      graph_datas[add.index].max = max + (abs(max)*0.1);
     };
+
+//---------------------------------------------
+  int graph_nb = 2;
+  char graph_range[10] = "100d";
+  char graph_interval[10] = "1d";
+
+  bool ui_show_demo_window = false;
 }
 
 //---------------------------------------------
-void ui_show() {
-  static bool show_demo_window = false;
+void graph_show(graph_data& curr) {
+    ImGui::InputText("Stock", curr.stock_symbol, IM_ARRAYSIZE(curr.stock_symbol));
 
-  if (show_demo_window) ImGui::ShowDemoWindow(&show_demo_window);
+    ImGui::SameLine();
+    if (ImGui::Button("Load")) {
+      fetch1({.data=curr,.range=graph_range,.interval=graph_interval});
+    }
+
+    int stride = sizeof(float);
+    ImGui::PlotLines("Lines", curr.values.data(), curr.values.size(), 0.0f, nullptr, curr.min,
+                     curr.max, ImVec2(0, 200.0f), stride);
+}
+//---------------------------------------------
+void header_show() {
+  if (ui_show_demo_window) ImGui::ShowDemoWindow(&ui_show_demo_window);
+  ImGui::Checkbox("Show Demo Window?", &ui_show_demo_window);
+
+  //ImGui::Text("Time %.1f", ImGui::GetTime());
+
+  ImGui::InputText("Range", graph_range, IM_ARRAYSIZE(graph_range));
+  ImGui::InputText("Interval", graph_interval, IM_ARRAYSIZE(graph_interval));
+
+  if (ImGui::Button("Add a graph")) {
+    graph_nb++;
+  }
+  ImGui::SameLine();
+  if (ImGui::Button("Remove a graph")) {
+    graph_nb--;
+  }
+}
+//---------------------------------------------
+void ui_show() {
+
+  while(graph_datas.size() < graph_nb) {
+    graph_datas.push_back({.index=graph_datas.size(), .update_graph_cb=graph_cb });
+  }
 
   ImGui::Begin("Stocks");
 
-  ImGui::Checkbox("Show Demo Window?", &show_demo_window);
+  header_show();
 
-  ImGui::InputText("Stock Symbol", stock_symbol, IM_ARRAYSIZE(stock_symbol));
+  for(int i = 0; i < graph_nb; i++) {
+    ImGui::PushID(i);
 
-  if (ImGui::Button("Load")) {
-    fetch1({.symbol_name = stock_symbol, .success_cb = graph_cb});
+    graph_show(graph_datas[i]);
+
+    ImGui::PopID();
   }
-
-  ImGui::Text("Time %.1f", ImGui::GetTime());
-
-  int stride = sizeof(float);
-  ImGui::PlotLines("Lines", graph_values.data(), graph_values.size(), 0.0f, nullptr, graph_min,
-                   graph_max, ImVec2(0, 200.0f), stride);
 
   ImGui::End();
 }

@@ -1,17 +1,18 @@
 #ifndef FETCH_H
 #define FETCH_H
 
+#include "data.h"
+
 #include <functional>
 #include <vector>
 
 struct fetch_args
 {
-  const char* symbol_name;
-  std::function<void(const std::vector<float>)>& success_cb;
+  graph_data& data;
+  const char* range;
+  const char* interval;
 };
 
-void fetch_test();
-
-void fetch1(const fetch_args& args);
+void fetch1(fetch_args args);
 
 #endif //FETCH_H
