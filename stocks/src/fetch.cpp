@@ -19,8 +19,9 @@ namespace {
 
 //---------------------------------------------
   void on_fetch_success(emscripten_fetch_t *fetch) {
-    char* buffer = (char*)malloc(fetch->numBytes);
+    char* buffer = (char*)malloc(fetch->numBytes+1);
     memcpy(buffer, fetch->data, fetch->numBytes);
+    buffer[fetch->numBytes] = 0;
 
     graph_data& data = *static_cast<graph_data*>(fetch->userData);
 
@@ -35,7 +36,7 @@ namespace {
 }
 
 //---------------------------------------------
-void fetch1(fetch_args args) {
+void fetch_stock(fetch_args args) {
   emscripten_fetch_attr_t attr;
   emscripten_fetch_attr_init(&attr);
   strcpy(attr.requestMethod, "GET");
@@ -44,12 +45,15 @@ void fetch1(fetch_args args) {
   attr.onerror = on_fetch_failed;
   attr.userData = &args.data;
 
-  char buffer[300]="";
-  int cx;  // FIXME Check return value.
-  cx = snprintf(buffer, 300, "https://query1.finance.yahoo.com/v8/finance/chart/%s?metrics=high?&interval=%s&range=%s", args.data.stock_symbol, args.interval, args.range);
-  LOG_INFO("%s", buffer);
+  const size_t SIZE = 300;
+  char buffer[SIZE]="";
+  int cx = snprintf(buffer, 300, "https://query1.finance.yahoo.com/v8/finance/chart/%s?metrics=high?&interval=%s&range=%s", args.data.stock_symbol, args.interval, args.range);
+  if(cx >= SIZE) {
+    LOG_ERROR("String to long");
+  }
+#ifdef DEBUG_REQUEST
+  LOG_INFO("GET stocks info : %s", buffer);
+#endif
 
-//BUG Sometime doesn't work. Error on parsing.
   emscripten_fetch(&attr, buffer);
-  //mdtmp emscripten_fetch(&attr, "https://query1.finance.yahoo.com/v8/finance/chart/aapl?metrics=high?&interval=1d&range=100d");
 }

@@ -30,7 +30,7 @@ UNAME_S := $(shell uname -s)
 CPPFLAGS =
 LDFLAGS =
 EMS =
-DEFINES = -DDEBUG_TRACE
+DEFINES = -DDEBUG_TRACE -DDEBUG_REQUEST
 
 ##---------------------------------------------------------------------
 ## EMSCRIPTEN OPTIONS

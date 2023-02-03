@@ -13,6 +13,6 @@ struct fetch_args
   const char* interval;
 };
 
-void fetch1(fetch_args args);
+void fetch_stock(fetch_args args);
 
 #endif //FETCH_H

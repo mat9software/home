@@ -7,6 +7,15 @@
 
 //---------------------------------------------
 std::vector<float> parse_request(char* buffer) {
+#ifdef DEBUG_REQUEST
+LOG_INFO("Json Buffer to parse");
+char* it = buffer;
+while(*it != 0) {
+  putchar(*it);
+  it++;
+}
+putchar('\n');
+#endif
     rapidjson::Document document;
     std::vector<float> ret;
 
