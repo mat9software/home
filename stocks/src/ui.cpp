@@ -3,6 +3,7 @@
 #include "common/log.h"
 #include "data.h"
 #include <stdio.h>
+#include <string.h>
 
 #include "fetch.h"
 #include "imgui.h"
@@ -10,13 +11,12 @@ namespace {
   std::vector<const char*> graph_valid_range = {"5d","1mo","3mo","6mo","1y","2y","5y","10y","ytd","max"};
 //---------------------------------------------
   std::vector<graph_data> graph_datas;
-  int graph_nb = 2;
   float graph_min = -1.0f;
   float graph_max = -1.0f;
   bool graph_same_min_max = false;
-  char graph_range[10] = "100d";
   int graph_range_idx = 0;
   char graph_interval[10] = "1d";
+  char graph_stocks_input[200] = "aapl";
 
 //---------------------------------------------
   bool ui_show_demo_window = false;
@@ -61,7 +61,8 @@ void header_show() {
 
   ImGui::Checkbox("Same Graph Range for All", &graph_same_min_max);
 
-  //mdtmp ImGui::InputText("Range", graph_range, IM_ARRAYSIZE(graph_range));
+  ImGui::InputText("Stocks Input", graph_stocks_input, IM_ARRAYSIZE(graph_stocks_input));
+
   ImGui::Text("Range : %s", graph_valid_range[graph_range_idx]);
 
   if (ImGui::ArrowButton("##left", ImGuiDir_Left)) {
@@ -75,37 +76,79 @@ void header_show() {
     if(graph_range_idx >= graph_valid_range.size()) graph_range_idx = graph_valid_range.size()-1;
   }
 
-  //mdtmp ImGui::InputText("Range", graph_range, IM_ARRAYSIZE(graph_range));
   ImGui::InputText("Interval", graph_interval, IM_ARRAYSIZE(graph_interval));
   if (ImGui::Button("Load")) {
     graph_min = -1.0f;
     graph_max = -1.0f;
 
-    for(int i = 0; i < graph_nb; i++) {
+    { // Get all stock from a ',| ' separated string.
+
+      LOG_TRACE("Testing algorithm");
+      LOG_TRACE("%s", graph_stocks_input);
+      char* end = graph_stocks_input;
+      while (*end != 0) {
+        end++;
+      }
+
+      size_t nb = 0;
+      char* itr = graph_stocks_input;
+      char* begin = itr;
+      while (true) {
+        if (*itr == ' ' || *itr == ',' || itr == end) {
+          if (itr == begin) {
+            // empty word
+            if (itr == end) break;
+
+            itr++;
+            begin = itr;
+            continue;
+          }
+
+          // found a word
+          nb++;
+          size_t i = nb-1;
+          graph_datas.resize(nb);
+          graph_datas[i] = {.index=i, .update_graph_cb=graph_cb };
+
+          size_t size = itr - begin;
+          LOG_TRACE("size:%zu",size);
+          LOG_TRACE("begin:%p",begin);
+          if (size < STOCK_SYMBOL_LENGTH) {
+            memcpy(&graph_datas[i].stock_symbol, begin, size);
+            memset(&graph_datas[i].stock_symbol[size], 0, 1);
+          } else {
+            graph_datas[i].stock_symbol[0] = 0;
+            LOG_ERROR("String to long");
+          }
+          LOG_TRACE("after mem cpy : %s",graph_datas[i].stock_symbol);
+
+
+          if (itr == end) break;
+          itr++;
+          begin = itr;
+          continue;
+        }
+
+        itr++;
+      }
+    }
+    for(int i = 0; i < graph_datas.size(); i++ ) {
+      LOG_TRACE("After algo : %s", graph_datas[i].stock_symbol);
+    }
+
+    for(int i = 0; i < graph_datas.size(); i++) {
       fetch_stock({.data=graph_datas[i],.range=graph_valid_range[graph_range_idx],.interval=graph_interval});
     }
   }
 
-  if (ImGui::Button("Add a graph")) {
-    graph_nb++;
-  }
-  ImGui::SameLine();
-  if (ImGui::Button("Remove a graph")) {
-    graph_nb--;
-  }
 }
 //---------------------------------------------
 void ui_show() {
-
-  while(graph_datas.size() < graph_nb) {
-    graph_datas.push_back({.index=graph_datas.size(), .update_graph_cb=graph_cb });
-  }
-
   ImGui::Begin("Stocks");
 
   header_show();
 
-  for(int i = 0; i < graph_nb; i++) {
+  for(int i = 0; i < graph_datas.size(); i++) {
     ImGui::PushID(i);
 
     graph_show(graph_datas[i]);

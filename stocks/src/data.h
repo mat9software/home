@@ -10,9 +10,10 @@ struct graph_add
   size_t index;
 };
 
+const size_t STOCK_SYMBOL_LENGTH = 10;
 struct graph_data {
    std::vector<float> values = {};
-   char stock_symbol[10] = "aapl";
+   char stock_symbol[STOCK_SYMBOL_LENGTH] = "aapl";
    float min = -1.0f;
    float max = 1.0f;
    size_t index;
