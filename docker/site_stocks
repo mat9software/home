@@ -1,0 +1,14 @@
+server {
+       listen 8000;
+       listen [::]:8000;
+
+       root /srv/stocks/web;
+       index index.html;
+
+       location / {
+               try_files $uri $uri/ =404;
+       }
+       location /yahoo/ {
+               proxy_pass https://query1.finance.yahoo.com/;
+       }
+}

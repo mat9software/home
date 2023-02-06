@@ -3,9 +3,7 @@ FROM ubuntu:22.04
 #How to use :
 #
 #(optional) sudo su
-#docker build .
-#docker images
-#docker run -ti <image_id>
+#docker build . -t mat9software:latest
 
 WORKDIR /docker_install
 
@@ -44,11 +42,18 @@ RUN git config --global --add safe.directory /srv
 RUN echo 'export EDITOR=vim'
 RUN echo "alias sf='find -iname \"\$@\"'"
 
+
 RUN apt install -y gdb
 
+RUN apt install -y nginx
+COPY site_stocks /etc/nginx/sites-available/default
 
 COPY vimrc /root/.vimrc
 COPY vimrc /root/.gdbinit
 
+
 #RUN git config --global user.name ""
 #RUN git config --global user.email ""
+
+ENTRYPOINT service nginx restart && bash
+
