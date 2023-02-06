@@ -47,7 +47,7 @@ void fetch_stock(fetch_args args) {
 
   const size_t SIZE = 300;
   char buffer[SIZE]="";
-  int cx = snprintf(buffer, 300, "yahoo/v8/finance/chart/%s?metrics=high?&interval=%s&range=%s", args.data.stock_symbol, args.interval, args.range);
+  int cx = snprintf(buffer, 300, "yahoo/v8/finance/chart/%s?metrics=high?&interval=1d&range=%s", args.data.stock_symbol, args.range);
   if(cx >= SIZE) {
     LOG_ERROR("String to long");
   }

@@ -22,7 +22,7 @@ SRC_DIR = src/
 IMGUI_DIR = imgui/
 RAPID_JSON_DIR = rapidjson/include
 BUILD_DIR = build
-SOURCES = $(SRC_DIR)/main.cpp $(SRC_DIR)/dockspace.cpp $(SRC_DIR)/fetch.cpp $(SRC_DIR)/ui.cpp $(SRC_DIR)/parse.cpp $(SRC_DIR)/data.cpp $(SRC_DIR)/utils.cpp
+SOURCES = $(SRC_DIR)/main.cpp $(SRC_DIR)/dockspace.cpp $(SRC_DIR)/fetch.cpp $(SRC_DIR)/ui.cpp $(SRC_DIR)/parse.cpp $(SRC_DIR)/data.cpp $(SRC_DIR)/utils.cpp $(SRC_DIR)/test.cpp
 SOURCES += $(IMGUI_DIR)/imgui.cpp $(IMGUI_DIR)/imgui_demo.cpp $(IMGUI_DIR)/imgui_draw.cpp $(IMGUI_DIR)/imgui_tables.cpp $(IMGUI_DIR)/imgui_widgets.cpp
 SOURCES += $(IMGUI_DIR)/backends/imgui_impl_sdl.cpp $(IMGUI_DIR)/backends/imgui_impl_opengl3.cpp
 OBJS = $(addprefix $(BUILD_DIR)/, $(addsuffix .o, $(basename $(notdir $(SOURCES)))))
@@ -30,7 +30,7 @@ UNAME_S := $(shell uname -s)
 CPPFLAGS =
 LDFLAGS =
 EMS =
-DEFINES = -DDEBUG_TRACE -DDEBUG_REQUEST
+DEFINES = -DDEBUG_TRACE -DDEBUG_REQUEST -DRUN_TEST
 
 ##---------------------------------------------------------------------
 ## EMSCRIPTEN OPTIONS

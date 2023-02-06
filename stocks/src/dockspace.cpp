@@ -67,7 +67,7 @@ void dockspace_show() {
     }
     else
     {
-        //mdtmp ShowDockingDisabledMessage();
+        //ShowDockingDisabledMessage();
     }
 
     if (ImGui::BeginMenuBar())

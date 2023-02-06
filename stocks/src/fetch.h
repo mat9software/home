@@ -10,7 +10,6 @@ struct fetch_args
 {
   graph_data& data;
   const char* range;
-  const char* interval;
 };
 
 void fetch_stock(fetch_args args);

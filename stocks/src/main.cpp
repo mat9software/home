@@ -8,6 +8,7 @@
 #include <emscripten.h>
 #include <SDL.h>
 #include <SDL_opengles2.h>
+#include "test.h"
 
 
 // Emscripten requires to have full control over the main loop. We're going to store our SDL book-keeping variables globally.
@@ -117,7 +118,7 @@ static void main_loop(void* arg)
     SDL_Event event;
     while (SDL_PollEvent(&event))
     {
-        //mdtmp pass event to ui.
+        //TODO pass event to ui.
         ImGui_ImplSDL2_ProcessEvent(&event);
         // Capture events here, based on io.WantCaptureMouse and io.WantCaptureKeyboard
     }
@@ -142,5 +143,5 @@ static void main_loop(void* arg)
 }
 static void run_test()
 {
-  //mdtmp fetch_test();
+  test_run();
 }
