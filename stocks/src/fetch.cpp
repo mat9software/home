@@ -19,6 +19,7 @@ namespace {
 
 //---------------------------------------------
   void on_fetch_success(emscripten_fetch_t *fetch) {
+    // Copy empscripten buffer. I don't know why... Should use same buffer...
     char* buffer = (char*)malloc(fetch->numBytes+1);
     memcpy(buffer, fetch->data, fetch->numBytes);
     buffer[fetch->numBytes] = 0;
@@ -47,6 +48,8 @@ void fetch_stock(fetch_args args) {
 
   const size_t SIZE = 300;
   char buffer[SIZE]="";
+// URL behind proxy.
+// https://query1.finance.yahoo.com/v8/finance/chart/%s?metrics=high?&interval=1d&range=5y
   int cx = snprintf(buffer, 300, "yahoo/v8/finance/chart/%s?metrics=high?&interval=1d&range=%s", args.data.stock_symbol, args.range);
   if(cx >= SIZE) {
     LOG_ERROR("String to long");

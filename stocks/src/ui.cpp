@@ -9,21 +9,23 @@
 #include "fetch.h"
 #include "imgui.h"
 namespace {
-  std::vector<const char*> graph_valid_range = {"5d","1mo","3mo","6mo","1y","2y","5y","10y","ytd","max"};
+//---------------------------------------------
+  int graph_range_idx = 2;
+  const std::vector<const char*> graph_valid_range = {"5d","1mo","3mo","6mo","1y","2y","5y","10y","ytd","max"};
 //---------------------------------------------
   std::vector<graph_data> graph_datas;
-  float graph_min = -1.0f;
-  float graph_max = -1.0f;
+//---------------------------------------------
+  float graph_shared_min = -1.0f;
+  float graph_shared_max = -1.0f;
   bool graph_same_min_max = false;
-  int graph_range_idx = 0;
+//---------------------------------------------
   char graph_stocks_input[200] = "aapl";
-
 //---------------------------------------------
   bool ui_show_demo_window = false;
-
 //---------------------------------------------
   std::function<void(const graph_add& add)> graph_cb =
     [](const graph_add& add) {
+      //Update grap_data for index.
       const auto& vec = add.values;
       graph_datas[add.index].values = vec;
       const auto min = *min_element(vec.begin(), vec.end());
@@ -31,19 +33,20 @@ namespace {
       graph_datas[add.index].min = min - (abs(min)*0.1);
       graph_datas[add.index].max = max + (abs(max)*0.1);
       
-      if(graph_min == -1.0f) graph_min = min;
-      if(graph_max == -1.0f) graph_max = max;
+      //Keep track of global min/max.
+      if(graph_shared_min == -1.0f) graph_shared_min = min;
+      if(graph_shared_max == -1.0f) graph_shared_max = max;
        
-      if(graph_min > min) graph_min = min;
-      if(graph_max < max) graph_max = max;
+      if(graph_shared_min > min) graph_shared_min = min;
+      if(graph_shared_max < max) graph_shared_max = max;
     };
 }
 
 //---------------------------------------------
 void graph_show(graph_data& curr) {
     if(graph_same_min_max) {
-        ImGui::PlotLines(curr.stock_symbol, curr.values.data(), curr.values.size(), 0.0f, nullptr, graph_min,
-                         graph_max, ImVec2(0, 200.0f));
+        ImGui::PlotLines(curr.stock_symbol, curr.values.data(), curr.values.size(), 0.0f, nullptr, graph_shared_min,
+                         graph_shared_max, ImVec2(0, 200.0f));
     } else {
         ImGui::PlotLines(curr.stock_symbol, curr.values.data(), curr.values.size(), 0.0f, nullptr, curr.min,
                          curr.max, ImVec2(0, 200.0f));
@@ -56,7 +59,7 @@ void header_show() {
 
   //ImGui::Text("Time %.1f", ImGui::GetTime());
 
-  ImGui::Checkbox("Same Graph Range for All", &graph_same_min_max);
+  ImGui::Checkbox("Same Range for All Graph", &graph_same_min_max);
 
   ImGui::InputText("Stocks Input", graph_stocks_input, IM_ARRAYSIZE(graph_stocks_input));
 
@@ -74,8 +77,8 @@ void header_show() {
   }
 
   if (ImGui::Button("Load")) {
-    graph_min = -1.0f;
-    graph_max = -1.0f;
+    graph_shared_min = -1.0f;
+    graph_shared_max = -1.0f;
 
     { // Get all stock from a ',| ' separated string.
 
@@ -109,6 +112,7 @@ void header_show() {
 
 //---------------------------------------------
 void ui_show() {
+  //Set an initial window size and position
   ImGui::SetNextWindowPos(ImVec2(0.0f, 0.0f), ImGuiCond_Once);
   ImGui::SetNextWindowSize(ImVec2(1000.0f, 800.0f), ImGuiCond_Once);
 
@@ -117,6 +121,7 @@ void ui_show() {
   header_show();
 
   for(int i = 0; i < graph_datas.size(); i++) {
+    //PushID to differenciate similar UI component.
     ImGui::PushID(i);
 
     graph_show(graph_datas[i]);

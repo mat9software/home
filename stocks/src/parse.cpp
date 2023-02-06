@@ -5,6 +5,7 @@
 #include "rapidjson/rapidjson.h"
 
 //---------------------------------------------
+//Extract stock price list.
 std::vector<float> parse_request(char* buffer) {
 #ifdef DEBUG_REQUEST
   LOG_INFO("Json Buffer to parse");
