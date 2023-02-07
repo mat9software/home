@@ -1,1 +1,1 @@
-docker run -p 8000:8000 -v `pwd`:/srv -w /srv -ti mat9software
+docker run -p 80:80 -v `pwd`:/srv -w /srv -ti mat9software

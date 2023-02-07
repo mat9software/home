@@ -49,6 +49,7 @@ void fetch_stock(fetch_args args) {
   const size_t SIZE = 300;
   char buffer[SIZE]="";
 // URL behind proxy.
+// yahoo finance data query
 // https://query1.finance.yahoo.com/v8/finance/chart/%s?metrics=high?&interval=1d&range=5y
   int cx = snprintf(buffer, 300, "yahoo/v8/finance/chart/%s?metrics=high?&interval=1d&range=%s", args.data.stock_symbol, args.range);
   if(cx >= SIZE) {

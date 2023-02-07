@@ -9,6 +9,7 @@
 #include "fetch.h"
 #include "imgui.h"
 namespace {
+//That the APP Data
 //---------------------------------------------
   int graph_range_idx = 2;
   const std::vector<const char*> graph_valid_range = {"5d","1mo","3mo","6mo","1y","2y","5y","10y","ytd","max"};
@@ -77,6 +78,7 @@ void header_show() {
   }
 
   if (ImGui::Button("Load")) {
+    // Reset global data.
     graph_shared_min = -1.0f;
     graph_shared_max = -1.0f;
 
@@ -111,6 +113,7 @@ void header_show() {
 }
 
 //---------------------------------------------
+// Entry UI function
 void ui_show() {
   //Set an initial window size and position
   ImGui::SetNextWindowPos(ImVec2(0.0f, 0.0f), ImGuiCond_Once);

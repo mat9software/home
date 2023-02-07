@@ -1,8 +1,8 @@
 server {
-       listen 8000;
-       listen [::]:8000;
+       listen 80;
+       listen [::]:80;
 
-       root /srv/stocks/web;
+       root /srv/deploy/web;
        index index.html;
 
        location / {
