@@ -1,0 +1,1 @@
+ctags --recurse=yes --exclude=.git --exclude=build --exclude=build --exclude=www --exclude=assets
