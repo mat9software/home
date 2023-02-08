@@ -11,6 +11,14 @@ min, max, pourcentage
 #8 START
 Summary : Add a pourcentage scale on graph.
 Details : See all graph with pourcentage scale.
-#8 END
+#8
+
+#9
+Summary : Add a production Nginx Docker.
+
+Create a docker/prod folder.
+Use site configuration from patent folder.
+Create startup script.source
+#9
 
 ---------- BUGS ----------
