@@ -24,34 +24,24 @@ namespace {
 //---------------------------------------------
   bool ui_show_demo_window = false;
 
-/*
-//mdtmp
-Add fetch_data{
-on_success;
-on_failure;
-graph_index;
-std::vector<fetch_data> curr_request;
-int waiting_for_request; // must be 0 to enable button. Put to nb when launching it
-
-static bool button_disable = false;
-ImGui::BeginDisabled(button_disable);
-if (ImGui::Button("OK", ImVec2(120, 0)))  { button_disable = true; }
-ImGui::EndDisabled();
-*/
+//---------------------------------------------
+  std::vector<fetch_args> curr_requests;
+  // States for waiting_for_requests 
+  // -1 : Ready to Load new requests.
+  //  0 : Data received, calculating statistic from data.
+  // >0 : Request in progress. Waiting for result.
+  // -2 : Starting Request, Load is disable.
+  int waiting_for_requests = -1;
 
 //---------------------------------------------
-  std::function<void(const graph_add& add)> graph_cb =
-    [](const graph_add& add) {
-//mdtmp only populate values.
-//mdtmp find another place to calculate min/max etc.. poucentage
-//mdtmp add ui and data to zoom in and move across values.
-      //Update grap_data for index.
-      const auto& vec = add.values;
-      graph_datas[add.index].values = vec;
+  void on_done() {
+    for(auto& it:graph_datas) {
+      auto& vec = it.values;
+
       const auto min = *min_element(vec.begin(), vec.end());
       const auto max = *max_element(vec.begin(), vec.end());
-      graph_datas[add.index].min = min - (abs(min)*0.1);
-      graph_datas[add.index].max = max + (abs(max)*0.1);
+      it.min = min - (abs(min)*0.1); // add 10% on graph value.
+      it.max = max + (abs(max)*0.1); // add 10% on graph value.
       
       //Keep track of global min/max.
       if(graph_shared_min == -1.0f) graph_shared_min = min;
@@ -59,6 +49,30 @@ ImGui::EndDisabled();
        
       if(graph_shared_min > min) graph_shared_min = min;
       if(graph_shared_max < max) graph_shared_max = max;
+    }
+
+    waiting_for_requests = -1;
+  }
+
+  std::function<void(const graph_cb_args& add)> on_success_cb =
+    [](const graph_cb_args& add) {
+      //Receive stocks data.
+      const auto& vec = add.values;
+      graph_datas[add.index].values = vec;
+
+      waiting_for_requests--;
+      if (waiting_for_requests == 0) {
+        on_done();
+      }
+    };
+ 
+    std::function<void(const graph_cb_args& add)> on_failure_cb =
+    [](const graph_cb_args& add) {
+      LOG_ERROR("Request failed. Index %zu", add.index);
+      waiting_for_requests--;
+      if (waiting_for_requests == 0) {
+        on_done();
+      }
     };
 }
 
@@ -96,7 +110,11 @@ void header_show() {
     if(graph_range_idx >= graph_valid_range.size()) graph_range_idx = graph_valid_range.size()-1;
   }
 
+  ImGui::BeginDisabled(waiting_for_requests != -1);
   if (ImGui::Button("Load")) {
+    waiting_for_requests = -2; //Disable Load button.
+    curr_requests.clear();
+
     // Reset global data.
     graph_shared_min = -1.0f;
     graph_shared_max = -1.0f;
@@ -112,7 +130,6 @@ void header_show() {
         word_nb++;
         size_t i = word_nb - 1;
         graph_datas.resize(word_nb);
-        graph_datas[i] = {.index = i, .update_graph_cb = graph_cb};
 
         size_t size = end - itr;
         if (size < STOCK_SYMBOL_LENGTH) {
@@ -125,10 +142,21 @@ void header_show() {
       }
     }
 
-    for(int i = 0; i < graph_datas.size(); i++) {
-      fetch_stock({.data=graph_datas[i],.range=graph_valid_range[graph_range_idx]});
+    waiting_for_requests = graph_datas.size();
+    for (size_t i = 0; i < graph_datas.size(); i++) {
+      curr_requests.push_back({
+          .index = i,
+          .range = graph_valid_range[graph_range_idx],
+          .stock_symbol = graph_datas[i].stock_symbol,
+          .on_success = on_success_cb,
+          .on_failure = on_failure_cb,
+      });
+    }
+    for(auto& it:curr_requests) {
+      fetch_stock(it);
     }
   }
+  ImGui::EndDisabled();
 }
 
 //---------------------------------------------

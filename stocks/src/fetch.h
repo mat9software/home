@@ -8,10 +8,13 @@
 
 struct fetch_args
 {
-  graph_data& data;
+  size_t index;
   const char* range; //How far in the past we fetch historyic data.
+  const char* stock_symbol;
+  std::function<void(const graph_cb_args& add)> on_success;
+  std::function<void(const graph_cb_args& add)> on_failure;
 };
 
-void fetch_stock(fetch_args args);
+void fetch_stock(fetch_args& args);
 
 #endif //FETCH_H

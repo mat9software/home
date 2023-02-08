@@ -1,14 +1,14 @@
 ---------- TODO ----------
-#6 START
+#6
 Summary : Pointing points should relate to real date in graph
-#6 END
+#6
 
-#7 START
+#7
 Summary : Add information on graph layout.
 min, max, pourcentage
-#7 END
+#7
 
-#8 START
+#8
 Summary : Add a pourcentage scale on graph.
 Details : See all graph with pourcentage scale.
 #8
@@ -22,3 +22,8 @@ Create startup script.source
 #9
 
 ---------- BUGS ----------
+
+#10
+Summary : If parse fail. Load button is disabled for ever.
+
+#10

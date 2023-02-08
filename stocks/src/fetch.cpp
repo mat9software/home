@@ -14,7 +14,12 @@ namespace {
   void on_fetch_failed(emscripten_fetch_t *fetch) {
     LOG_ERROR("Downloading %s failed, HTTP failure status code: %d.\n", fetch->url,
            fetch->status);
+
+    fetch_args& args = *static_cast<fetch_args*>(fetch->userData);
+
     emscripten_fetch_close(fetch);  // Also free data on failure.
+
+    args.on_failure({.values={}, .index=args.index});
   };
 
 //---------------------------------------------
@@ -24,7 +29,7 @@ namespace {
     memcpy(buffer, fetch->data, fetch->numBytes);
     buffer[fetch->numBytes] = 0;
 
-    graph_data& data = *static_cast<graph_data*>(fetch->userData);
+    fetch_args& args = *static_cast<fetch_args*>(fetch->userData);
 
     emscripten_fetch_close(fetch);  // Free data associated with the fetch.
 
@@ -32,26 +37,26 @@ namespace {
 
     free(buffer);
 
-    data.update_graph_cb({.values=ret, .index=data.index});
+    args.on_success({.values=ret, .index=args.index});
   };
 }
 
 //---------------------------------------------
-void fetch_stock(fetch_args args) {
+void fetch_stock(fetch_args& args) {
   emscripten_fetch_attr_t attr;
   emscripten_fetch_attr_init(&attr);
   strcpy(attr.requestMethod, "GET");
   attr.attributes = EMSCRIPTEN_FETCH_LOAD_TO_MEMORY;
   attr.onsuccess = on_fetch_success;
   attr.onerror = on_fetch_failed;
-  attr.userData = &args.data;
+  attr.userData = &args;
 
   const size_t SIZE = 300;
   char buffer[SIZE]="";
 // URL behind proxy.
 // yahoo finance data query
 // https://query1.finance.yahoo.com/v8/finance/chart/%s?metrics=high?&interval=1d&range=5y
-  int cx = snprintf(buffer, 300, "yahoo/v8/finance/chart/%s?metrics=high?&interval=1d&range=%s", args.data.stock_symbol, args.range);
+  int cx = snprintf(buffer, 300, "yahoo/v8/finance/chart/%s?metrics=high?&interval=1d&range=%s", args.stock_symbol, args.range);
   if(cx >= SIZE) {
     LOG_ERROR("String to long");
   }

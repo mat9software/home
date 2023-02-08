@@ -4,7 +4,7 @@
 #include <vector>
 #include <functional>
 
-struct graph_add
+struct graph_cb_args
 {
   const std::vector<float> values;
   size_t index;
@@ -16,9 +16,8 @@ struct graph_data {
    char stock_symbol[STOCK_SYMBOL_LENGTH] = "";
    float min = -1.0f;
    float max = 1.0f;
-   size_t index;
-   std::function<void(const graph_add& add)> update_graph_cb;
 };
+
 
 
 #endif //DATA_H
