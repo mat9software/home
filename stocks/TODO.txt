@@ -1,30 +1,16 @@
 ---------- TODO ----------
-#2 START
-Summary : Move UI code to ui.cpp.
-#2 END
+#6 START
+Summary : Pointing points should relate to real date in graph
+#6 END
 
-#3 START
-Summary : Finish parsing the yahoo request.
-#3 END
+#7 START
+Summary : Add information on graph layout.
+min, max, pourcentage
+#7 END
 
-#4 START
-Summary : Integrate the yahoo data to a UI graph.
-#4 END
-
-#5 START
-Summary : Design & plan the interaction between those module.
-#5 END
+#8 START
+Summary : Add a pourcentage scale on graph.
+Details : See all graph with pourcentage scale.
+#8 END
 
 ---------- BUGS ----------
-
-#1 START
-Summary : Python http server block cross-origin in browser.
-
-Details : We need to figure out how we can call a different origin from the wasm client code without blocking. Is it a problem with the server?
-
-Impact : Not blocking for dev. Blocking for prod.
-
-Workaround : Use chrome in unsafe mode (allow cross-origin mode)
-
-#1 END
-

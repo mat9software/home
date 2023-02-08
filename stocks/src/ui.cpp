@@ -11,7 +11,7 @@
 namespace {
 //That the APP Data
 //---------------------------------------------
-  int graph_range_idx = 2;
+  int graph_range_idx = 6;
   const std::vector<const char*> graph_valid_range = {"5d","1mo","3mo","6mo","1y","2y","5y","10y","ytd","max"};
 //---------------------------------------------
   std::vector<graph_data> graph_datas;
@@ -26,6 +26,9 @@ namespace {
 //---------------------------------------------
   std::function<void(const graph_add& add)> graph_cb =
     [](const graph_add& add) {
+//mdtmp only populate values.
+//mdtmp find another place to calculate min/max etc.. poucentage
+//mdtmp add ui and data to zoom in and move across values.
       //Update grap_data for index.
       const auto& vec = add.values;
       graph_datas[add.index].values = vec;
