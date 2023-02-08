@@ -32,6 +32,11 @@ on_failure;
 graph_index;
 std::vector<fetch_data> curr_request;
 int waiting_for_request; // must be 0 to enable button. Put to nb when launching it
+
+static bool button_disable = false;
+ImGui::BeginDisabled(button_disable);
+if (ImGui::Button("OK", ImVec2(120, 0)))  { button_disable = true; }
+ImGui::EndDisabled();
 */
 
 //---------------------------------------------
