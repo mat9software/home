@@ -43,6 +43,13 @@ namespace {
       it.min = min - (abs(min)*0.1); // add 10% on graph value.
       it.max = max + (abs(max)*0.1); // add 10% on graph value.
       
+      if(!vec.empty()) {
+        it.ratio_begin_to_end = vec[vec.size()-1] / vec[0];
+      }
+      it.ratio_min_to_max = max/min;
+      LOG_TRACE("mdtmp :%f", it.ratio_begin_to_end);
+      LOG_TRACE("mdtmp :%f", it.ratio_min_to_max);
+
       //Keep track of global min/max.
       if(graph_shared_min == -1.0f) graph_shared_min = min;
       if(graph_shared_max == -1.0f) graph_shared_max = max;

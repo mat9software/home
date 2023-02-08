@@ -13,7 +13,7 @@ Summary : Add a pourcentage scale on graph.
 Details : See all graph with pourcentage scale.
 #8
 
-#9
+#9 CANCELED?? If free cloud node have enough disk space. We can use the development docker image.
 Summary : Add a production Nginx Docker.
 
 Create a docker/prod folder.
