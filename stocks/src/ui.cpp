@@ -23,6 +23,17 @@ namespace {
   char graph_stocks_input[200] = "aapl";
 //---------------------------------------------
   bool ui_show_demo_window = false;
+
+/*
+//mdtmp
+Add fetch_data{
+on_success;
+on_failure;
+graph_index;
+std::vector<fetch_data> curr_request;
+int waiting_for_request; // must be 0 to enable button. Put to nb when launching it
+*/
+
 //---------------------------------------------
   std::function<void(const graph_add& add)> graph_cb =
     [](const graph_add& add) {
