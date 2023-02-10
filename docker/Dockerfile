@@ -46,11 +46,12 @@ RUN echo "alias sf='find -iname \"\$@\"'"
 RUN apt install -y gdb
 
 RUN apt install -y nginx
+RUN wget https://github.com/nginx/nginx/raw/master/conf/mime.types
+RUN cp mime.types /etc/nginx/mime.types
 COPY site_stocks /etc/nginx/sites-available/default
 
 COPY vimrc /root/.vimrc
 COPY vimrc /root/.gdbinit
-
 
 #RUN git config --global user.name ""
 #RUN git config --global user.email ""

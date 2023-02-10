@@ -3,6 +3,7 @@
 #include "common/log.h"
 #include "data.h"
 #include "utils.h"
+#include "cache.h"
 #include <stdio.h>
 #include <string.h>
 
@@ -164,6 +165,11 @@ void header_show() {
     }
   }
   ImGui::EndDisabled();
+
+  if (ImGui::Button("Clean Cache")) {
+    cache_rm_all();
+    graph_datas.clear();
+  }
 }
 
 //---------------------------------------------

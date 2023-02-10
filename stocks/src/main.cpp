@@ -9,6 +9,8 @@
 #include <SDL.h>
 #include <SDL_opengles2.h>
 #include "test.h"
+#include "cache.h"
+#include "common/log.h"
 
 
 // Emscripten requires to have full control over the main loop. We're going to store our SDL book-keeping variables globally.
@@ -17,12 +19,16 @@ SDL_Window*     g_Window = NULL;
 SDL_GLContext   g_GLContext = NULL;
 
 static void main_loop(void*);
-static void run_test();
+static void main_run_test();
+static void main_init();
+
 
 //---------------------------------------------
 int main(int, char**)
 {
-    run_test();
+    main_init();
+
+    main_run_test();
 
     // Setup SDL
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_GAMECONTROLLER) != 0)
@@ -141,7 +147,13 @@ static void main_loop(void* arg)
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
     SDL_GL_SwapWindow(g_Window);
 }
-static void run_test()
+//--------------------------------------------------
+static void main_run_test()
 {
   test_run();
+}
+//--------------------------------------------------
+static void main_init()
+{
+  cache_init();
 }

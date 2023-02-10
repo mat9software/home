@@ -2,6 +2,8 @@
 
 #include "common/log.h"
 #include "parse.h"
+#include "cache.h"
+#include "utils.h"
 
 #include <emscripten/fetch.h>
 #include <stdio.h>
@@ -30,6 +32,7 @@ namespace {
     buffer[fetch->numBytes] = 0;
 
     fetch_args& args = *static_cast<fetch_args*>(fetch->userData);
+    cache_put(args.stock_symbol, buffer);
 
     emscripten_fetch_close(fetch);  // Free data associated with the fetch.
 
@@ -43,6 +46,13 @@ namespace {
 
 //---------------------------------------------
 void fetch_stock(fetch_args& args) {
+  auto file_content = cache_get(args.stock_symbol);
+  if(file_content) {
+    auto ret = parse_request(&(*file_content)[0]);
+    args.on_success({.values=ret, .index=args.index});
+    return;
+  }
+
   emscripten_fetch_attr_t attr;
   emscripten_fetch_attr_init(&attr);
   strcpy(attr.requestMethod, "GET");
@@ -51,15 +61,11 @@ void fetch_stock(fetch_args& args) {
   attr.onerror = on_fetch_failed;
   attr.userData = &args;
 
-  const size_t SIZE = 300;
-  char buffer[SIZE]="";
 // URL behind proxy.
 // yahoo finance data query
 // https://query1.finance.yahoo.com/v8/finance/chart/%s?metrics=high?&interval=1d&range=5y
-  int cx = snprintf(buffer, 300, "yahoo/v8/finance/chart/%s?metrics=high?&interval=1d&range=%s", args.stock_symbol, args.range);
-  if(cx >= SIZE) {
-    LOG_ERROR("String to long");
-  }
+  FMT_STACK_STR(buffer, 300, "yahoo/v8/finance/chart/%s?metrics=high?&interval=1d&range=%s", args.stock_symbol, args.range);
+
 #ifdef DEBUG_REQUEST
   LOG_INFO("GET stocks info : %s", buffer);
 #endif
