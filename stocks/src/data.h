@@ -13,6 +13,7 @@ struct graph_cb_args
 const size_t STOCK_SYMBOL_LENGTH = 10;
 struct graph_data {
    std::vector<float> values = {};
+   std::vector<float> ratio_values = {};
    char stock_symbol[STOCK_SYMBOL_LENGTH] = "";
    float min = -1.0f;
    float max = 1.0f;

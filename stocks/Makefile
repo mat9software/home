@@ -20,11 +20,13 @@ EXE = $(WEB_DIR)/index.html
 COMMON_DIR = ../
 SRC_DIR = src/
 IMGUI_DIR = ../3rdparty/imgui/
+IMPLOT_DIR = ../3rdparty/implot/
 RAPID_JSON_DIR = ../3rdparty/rapidjson/include/
 BUILD_DIR = build
 SOURCES = $(SRC_DIR)/main.cpp $(SRC_DIR)/dockspace.cpp $(SRC_DIR)/fetch.cpp $(SRC_DIR)/ui.cpp $(SRC_DIR)/parse.cpp $(SRC_DIR)/data.cpp $(SRC_DIR)/utils.cpp $(SRC_DIR)/cache.cpp $(SRC_DIR)/test.cpp
 SOURCES += $(IMGUI_DIR)/imgui.cpp $(IMGUI_DIR)/imgui_demo.cpp $(IMGUI_DIR)/imgui_draw.cpp $(IMGUI_DIR)/imgui_tables.cpp $(IMGUI_DIR)/imgui_widgets.cpp
 SOURCES += $(IMGUI_DIR)/backends/imgui_impl_sdl2.cpp $(IMGUI_DIR)/backends/imgui_impl_opengl3.cpp
+SOURCES += $(IMPLOT_DIR)/implot.cpp $(IMPLOT_DIR)/implot_items.cpp
 OBJS = $(addprefix $(BUILD_DIR)/, $(addsuffix .o, $(basename $(notdir $(SOURCES)))))
 UNAME_S := $(shell uname -s)
 CPPFLAGS =
@@ -63,7 +65,7 @@ endif
 ## FINAL BUILD FLAGS
 ##---------------------------------------------------------------------
 
-CPPFLAGS += -I$(COMMON_DIR) -I$(SRC_DIR) -I$(RAPID_JSON_DIR) -I$(IMGUI_DIR) -I$(IMGUI_DIR)/backends
+CPPFLAGS += -I$(COMMON_DIR) -I$(SRC_DIR) -I$(RAPID_JSON_DIR) -I$(IMGUI_DIR) -I$(IMGUI_DIR)/backends -I$(IMPLOT_DIR)
 #CPPFLAGS += -g
 CPPFLAGS += -Wall -Wformat -Os $(EMS) $(DEFINES)
 LDFLAGS += --shell-file shell_minimal.html $(EMS) $(DEFINES)
@@ -80,6 +82,9 @@ $(BUILD_DIR)/%.o:$(IMGUI_DIR)/%.cpp
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c -o $@ $<
 
 $(BUILD_DIR)/%.o:$(IMGUI_DIR)/backends/%.cpp
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c -o $@ $<
+
+$(BUILD_DIR)/%.o:$(IMPLOT_DIR)/%.cpp
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c -o $@ $<
 
 all: $(BUILD_DIR) $(EXE)

@@ -9,6 +9,8 @@
 
 #include "fetch.h"
 #include "imgui.h"
+#include "implot.h"
+
 namespace {
 //That the APP Data
 //---------------------------------------------
@@ -16,6 +18,7 @@ namespace {
   const std::vector<const char*> graph_valid_range = {"5d","1mo","3mo","6mo","1y","2y","5y","10y","ytd","max"};
 //---------------------------------------------
   std::vector<graph_data> graph_datas;
+  std::array<float, 10000> graph_x_datas;
 //---------------------------------------------
   float graph_shared_min = -1.0f;
   float graph_shared_max = -1.0f;
@@ -51,6 +54,14 @@ namespace {
       LOG_TRACE("mdtmp :%f", it.ratio_begin_to_end);
       LOG_TRACE("mdtmp :%f", it.ratio_min_to_max);
 
+      it.ratio_values.clear();
+      it.ratio_values.reserve(vec.size());
+      if(!vec.empty()) {
+        for(auto& v: vec) {
+          it.ratio_values.push_back(v/vec[0]*100.f);
+        }
+      }
+
       //Keep track of global min/max.
       if(graph_shared_min == -1.0f) graph_shared_min = min;
       if(graph_shared_max == -1.0f) graph_shared_max = max;
@@ -85,6 +96,27 @@ namespace {
 }
 
 //---------------------------------------------
+void implot_show() {
+  if(graph_datas.empty()) {
+    return;
+  }
+  if (ImPlot::BeginPlot("Stocks (Abs)")) {
+    for(auto& it:graph_datas){
+      ImPlot::PlotLine(it.stock_symbol, graph_x_datas.data(), it.values.data(), it.values.size());
+
+    }
+    ImPlot::EndPlot();
+  }
+  if (ImPlot::BeginPlot("Stocks (Pourcentage)")) {
+    for(auto& it:graph_datas){
+      ImPlot::PlotLine(it.stock_symbol, graph_x_datas.data(), it.ratio_values.data(), it.values.size(), 100.0);
+
+    }
+    ImPlot::EndPlot();
+  }
+}
+
+//---------------------------------------------
 void graph_show(graph_data& curr) {
     if(graph_same_min_max) {
         ImGui::PlotLines(curr.stock_symbol, curr.values.data(), curr.values.size(), 0.0f, nullptr, graph_shared_min,
@@ -94,6 +126,19 @@ void graph_show(graph_data& curr) {
                          curr.max, ImVec2(0, 200.0f));
     }
 }
+
+//---------------------------------------------
+void imgui_plots_show() {
+  for(int i = 0; i < graph_datas.size(); i++) {
+    //PushID to differenciate similar UI component.
+    ImGui::PushID(i);
+
+    graph_show(graph_datas[i]);
+
+    ImGui::PopID();
+  }
+}
+
 //---------------------------------------------
 void header_show() {
   if (ui_show_demo_window) ImGui::ShowDemoWindow(&ui_show_demo_window);
@@ -173,6 +218,13 @@ void header_show() {
 }
 
 //---------------------------------------------
+void ui_init() {
+  for(int i = 0; i < graph_x_datas.size(); i++) {
+   graph_x_datas[i] = i;
+  }
+}
+
+//---------------------------------------------
 // Entry UI function
 void ui_show() {
   //Set an initial window size and position
@@ -183,15 +235,10 @@ void ui_show() {
 
   header_show();
 
-  for(int i = 0; i < graph_datas.size(); i++) {
-    //PushID to differenciate similar UI component.
-    ImGui::PushID(i);
-
-    graph_show(graph_datas[i]);
-
-    ImGui::PopID();
-  }
+  implot_show();
+  imgui_plots_show();
 
   ImGui::End();
 }
+
 
