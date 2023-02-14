@@ -21,6 +21,7 @@ namespace {
 
     emscripten_fetch_close(fetch);  // Also free data on failure.
 
+  //mdtmp pass error code here fetch->status
     args.on_failure({.values={}, .index=args.index});
   };
 
@@ -63,7 +64,8 @@ void fetch_stock(fetch_args& args) {
 
 // URL behind proxy.
 // yahoo finance data query
-// https://query1.finance.yahoo.com/v8/finance/chart/%s?metrics=high?&interval=1d&range=5y
+// https://query1.finance.yahoo.com/v8/finance/chart/%s?metrics=high...
+//mdtmp add interval
   FMT_STACK_STR(buffer, 300, "yahoo/v8/finance/chart/%s?metrics=high?&interval=1d&range=%s", args.stock_symbol, args.range);
 
 #ifdef DEBUG_REQUEST

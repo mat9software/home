@@ -15,10 +15,14 @@ namespace {
 // The APP Data
 //---------------------------------------------
 int graph_range_idx = 6;
+//mdtmp why not array?
 const std::vector<const char*> graph_valid_range = {
     "5d", "1mo", "3mo", "6mo", "1y", "2y", "5y", "10y", "ytd", "max"};
 int graph_range_start_offset = 0;
 int graph_range_end_offset = 0;
+
+//mdtmp why not array?
+const std::vector<const char*> graph_valid_interval = {"1m", "2m", "5m", "15m", "30m", "1h", "4h", "1d", "1w", "1m", "1y"};
 
 //---------------------------------------------
 std::vector<graph_data> graph_datas;
@@ -40,6 +44,24 @@ std::vector<fetch_args> curr_requests;
 // >0 : Request in progress. Waiting for result.
 // -2 : Starting Request, Load is disable.
 int waiting_for_requests = -1;
+
+//---------------------------------------------
+//mdtmp this algorithm only support one interval (day).
+void fill_date(std::vector<float>& dates) {
+    float now = (float)time(0);
+    float time_value = now;
+    float every_five_days = 0;
+    for (int i = dates.size() - 1; i >= 0; i--, every_five_days++) {
+      dates[i] = time_value;
+      time_value -= 24.f * 3600.f;
+      if (every_five_days >= 4) {
+        every_five_days = 0;
+        // Approximation algorithm to skip the weekend.
+        time_value -= 24.f * 3600.f;
+        time_value -= 24.f * 3600.f;
+      }
+    }
+}
 
 //---------------------------------------------
 void on_done() {
@@ -78,19 +100,7 @@ void on_done() {
       LOG_ERROR("Values Size of first request is empty : %zu", size);
     }
     graph_x_datas.resize(size);
-    float now = (float)time(0);
-    float time_value = now;
-    float every_five_days = 0;
-    for (int i = size - 1; i >= 0; i--, every_five_days++) {
-      graph_x_datas[i] = time_value;
-      time_value -= 24.f * 3600.f;
-      if (every_five_days >= 4) {
-        every_five_days = 0;
-        // Approximation algorithm to skip the weekend.
-        time_value -= 24.f * 3600.f;
-        time_value -= 24.f * 3600.f;
-      }
-    }
+    fill_date(graph_x_datas);
   }
 
   waiting_for_requests = -1;
@@ -108,8 +118,10 @@ std::function<void(const graph_cb_args& add)> on_success_cb =
       }
     };
 
+//mdtmp add error_code arguments
 std::function<void(const graph_cb_args& add)> on_failure_cb =
     [](const graph_cb_args& add) {
+//mdtmp on failuer, get error code, it code is 422. Interval & range is a mismatch.
       LOG_ERROR("Request failed. Index %zu", add.index);
       waiting_for_requests--;
       if (waiting_for_requests == 0) {
@@ -189,6 +201,7 @@ void header_show() {
         graph_range_idx = graph_valid_range.size() - 1;
     }
   }
+//mdtmp add ui for graph_valid_interval
   {
     ImGui::BeginDisabled(waiting_for_requests != -1);
     if (ImGui::Button("Load")) {
@@ -224,6 +237,7 @@ void header_show() {
 
       waiting_for_requests = graph_datas.size();
       for (size_t i = 0; i < graph_datas.size(); i++) {
+//mdtmp add graph_valid_interval to fetch request
         curr_requests.push_back({
             .index = i,
             .range = graph_valid_range[graph_range_idx],

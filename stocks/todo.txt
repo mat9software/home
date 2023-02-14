@@ -1,4 +1,9 @@
 ---------- TODO ----------
+#13
+Summary : Add interval Ranges.
+
+#13
+
 #12
 Summary : Recalculate Pourcentage on offset changes.
 #12
@@ -27,3 +32,6 @@ Create startup script.source
 Summary : If parse fail. Load button is disabled for ever.
 #10
 
+#14
+Summary : If one stock doesn't have a full history, it breaks.
+#14
