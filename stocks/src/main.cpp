@@ -27,8 +27,6 @@ static void main_init();
 //---------------------------------------------
 int main(int, char**)
 {
-    main_init();
-
     main_run_test();
 
     // Setup SDL
@@ -104,6 +102,8 @@ int main(int, char**)
     //ImFont* font = io.Fonts->AddFontFromFileTTF("fonts/ArialUni.ttf", 18.0f, NULL, io.Fonts->GetGlyphRangesJapanese());
     //IM_ASSERT(font != NULL);
 #endif
+
+    main_init();
 
     // This function call won't return, and will engage in an infinite loop, processing events from the browser, and dispatching them.
     emscripten_set_main_loop_arg(main_loop, NULL, 0, true);

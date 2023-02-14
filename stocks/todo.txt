@@ -1,17 +1,8 @@
 ---------- TODO ----------
-#6
-Summary : Pointing points should relate to real date in graph
-#6
-
 #7
 Summary : Add information on graph layout.
 min, max, pourcentage
 #7
-
-#8
-Summary : Add a pourcentage scale on graph.
-Details : See all graph with pourcentage scale.
-#8
 
 #9 CANCELED?? If free cloud node have enough disk space. We can use the development docker image.
 Summary : Add a production Nginx Docker.
@@ -21,9 +12,14 @@ Use site configuration from patent folder.
 Create startup script.source
 #9
 
+#11 
+Summary : Cache invalidation is flacky
+Workaround : Desactivate cache for now.
+#11
+
 ---------- BUGS ----------
 
 #10
 Summary : If parse fail. Load button is disabled for ever.
-
 #10
+
