@@ -123,25 +123,6 @@ void implot_show() {
   if (graph_datas.empty()) {
     return;
   }
-  if (ImPlot::BeginPlot("Stocks (Abs)")) {
-    ImPlot::SetupAxisScale(ImAxis_X1, ImPlotScale_Time);
-    for (auto& it : graph_datas) {
-      if (it.values.empty()) continue;
-      if (graph_range_start_offset + graph_range_end_offset >=
-          it.values.size()) {
-        LOG_ERROR(
-            "Offset invalid. Offset greater then size. offset:%d|size:%zu",
-            graph_range_start_offset + graph_range_end_offset,
-            it.values.size());
-      }
-
-      ImPlot::PlotLine(it.stock_symbol,
-                       &graph_x_datas.data()[graph_range_start_offset],
-                       &it.values.data()[graph_range_start_offset],
-                       it.values.size() - graph_range_end_offset - graph_range_start_offset);
-    }
-    ImPlot::EndPlot();
-  }
   if (ImPlot::BeginPlot("Stocks (Pourcentage)")) {
     ImPlot::SetupAxisScale(ImAxis_X1, ImPlotScale_Time);
     for (auto& it : graph_datas) {
@@ -157,6 +138,25 @@ void implot_show() {
       ImPlot::PlotLine(it.stock_symbol,
                        &graph_x_datas.data()[graph_range_start_offset],
                        &it.ratio_values.data()[graph_range_start_offset],
+                       it.values.size() - graph_range_end_offset - graph_range_start_offset);
+    }
+    ImPlot::EndPlot();
+  }
+  if (ImPlot::BeginPlot("Stocks (Abs)")) {
+    ImPlot::SetupAxisScale(ImAxis_X1, ImPlotScale_Time);
+    for (auto& it : graph_datas) {
+      if (it.values.empty()) continue;
+      if (graph_range_start_offset + graph_range_end_offset >=
+          it.values.size()) {
+        LOG_ERROR(
+            "Offset invalid. Offset greater then size. offset:%d|size:%zu",
+            graph_range_start_offset + graph_range_end_offset,
+            it.values.size());
+      }
+
+      ImPlot::PlotLine(it.stock_symbol,
+                       &graph_x_datas.data()[graph_range_start_offset],
+                       &it.values.data()[graph_range_start_offset],
                        it.values.size() - graph_range_end_offset - graph_range_start_offset);
     }
     ImPlot::EndPlot();
@@ -188,6 +188,55 @@ void header_show() {
       if (graph_range_idx >= graph_valid_range.size())
         graph_range_idx = graph_valid_range.size() - 1;
     }
+  }
+  {
+    ImGui::BeginDisabled(waiting_for_requests != -1);
+    if (ImGui::Button("Load")) {
+      waiting_for_requests = -2;  // Disable Load button.
+      curr_requests.clear();
+      graph_datas.clear();
+
+      // Reset global data.
+      graph_shared_min = -1.0f;
+      graph_shared_max = -1.0f;
+
+      {  // Get all stock from a ',| ' separated string.
+
+        std::vector<const char*> split =
+            str_split_delimiter(graph_stocks_input, {',', ' '});
+        for (int j = 0; j < split.size(); j += 2) {
+          const char* itr = split[j];
+          const char* end = split[j + 1];
+
+          graph_data to_add;
+
+          size_t size = end - itr;
+          if (size < STOCK_SYMBOL_LENGTH) {
+            memcpy(&to_add.stock_symbol, itr, size);
+            memset(&to_add.stock_symbol[size], 0, 1);
+          } else {
+            to_add.stock_symbol[0] = 0;
+            LOG_ERROR("String to long");
+          }
+          graph_datas.push_back(to_add);
+        }
+      }
+
+      waiting_for_requests = graph_datas.size();
+      for (size_t i = 0; i < graph_datas.size(); i++) {
+        curr_requests.push_back({
+            .index = i,
+            .range = graph_valid_range[graph_range_idx],
+            .stock_symbol = graph_datas[i].stock_symbol,
+            .on_success = on_success_cb,
+            .on_failure = on_failure_cb,
+        });
+      }
+      for (auto& it : curr_requests) {
+        fetch_stock(it);
+      }
+    }
+    ImGui::EndDisabled();
   }
   {
     ImGui::Text("Start Offset : %d", graph_range_start_offset);
@@ -250,58 +299,12 @@ void header_show() {
     }
   }
 
-  ImGui::BeginDisabled(waiting_for_requests != -1);
-  if (ImGui::Button("Load")) {
-    waiting_for_requests = -2;  // Disable Load button.
-    curr_requests.clear();
-    graph_datas.clear();
-
-    // Reset global data.
-    graph_shared_min = -1.0f;
-    graph_shared_max = -1.0f;
-
-    {  // Get all stock from a ',| ' separated string.
-
-      std::vector<const char*> split =
-          str_split_delimiter(graph_stocks_input, {',', ' '});
-      for (int j = 0; j < split.size(); j += 2) {
-        const char* itr = split[j];
-        const char* end = split[j + 1];
-
-        graph_data to_add;
-
-        size_t size = end - itr;
-        if (size < STOCK_SYMBOL_LENGTH) {
-          memcpy(&to_add.stock_symbol, itr, size);
-          memset(&to_add.stock_symbol[size], 0, 1);
-        } else {
-          to_add.stock_symbol[0] = 0;
-          LOG_ERROR("String to long");
-        }
-        graph_datas.push_back(to_add);
-      }
-    }
-
-    waiting_for_requests = graph_datas.size();
-    for (size_t i = 0; i < graph_datas.size(); i++) {
-      curr_requests.push_back({
-          .index = i,
-          .range = graph_valid_range[graph_range_idx],
-          .stock_symbol = graph_datas[i].stock_symbol,
-          .on_success = on_success_cb,
-          .on_failure = on_failure_cb,
-      });
-    }
-    for (auto& it : curr_requests) {
-      fetch_stock(it);
-    }
-  }
-  ImGui::EndDisabled();
-
+#ifdef ENABLE_CACHE
   if (ImGui::Button("Clean Cache")) {
     cache_rm_all();
     graph_datas.clear();
   }
+#endif //ENABLE_CACHE
 }
 
 //---------------------------------------------

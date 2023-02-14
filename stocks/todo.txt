@@ -1,8 +1,17 @@
 ---------- TODO ----------
+#12
+Summary : Recalculate Pourcentage on offset changes.
+#12
+
 #7
 Summary : Add information on graph layout.
 min, max, pourcentage
 #7
+
+#11 
+Summary : Cache invalidation is flacky
+Workaround : Desactivate cache for now.
+#11
 
 #9 CANCELED?? If free cloud node have enough disk space. We can use the development docker image.
 Summary : Add a production Nginx Docker.
@@ -11,11 +20,6 @@ Create a docker/prod folder.
 Use site configuration from patent folder.
 Create startup script.source
 #9
-
-#11 
-Summary : Cache invalidation is flacky
-Workaround : Desactivate cache for now.
-#11
 
 ---------- BUGS ----------
 

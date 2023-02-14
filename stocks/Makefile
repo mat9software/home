@@ -32,7 +32,7 @@ UNAME_S := $(shell uname -s)
 CPPFLAGS =
 LDFLAGS =
 EMS =
-#DEFINES = -DDEBUG_TRACE -DDEBUG_REQUEST -DRUN_TEST
+#DEFINES = -DDEBUG_TRACE -DDEBUG_REQUEST -DRUN_TEST -DENABLE_CACHE
 DEFINES = -DDEBUG_TRACE -DRUN_TEST
 
 ##---------------------------------------------------------------------

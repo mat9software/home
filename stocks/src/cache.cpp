@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include <dirent.h>
 
+#ifdef ENABLE_CACHE
 //--------------------------------------------------
 void cache_init() {
     // EM_ASM is a macro to call in-line JavaScript code.
@@ -101,4 +102,11 @@ void cache_rm_all() {
     }
   }););
 }
+#else
+// Define empty function when cache is disabled.
+void cache_init(){}
+std::optional<std::string> cache_get(const char* key){return std::nullopt;}
+void cache_put(const char* key, const char* buffer){}
+void cache_rm_all(){}
 
+#endif //ENABLE_CACHE
