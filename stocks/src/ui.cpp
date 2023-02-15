@@ -5,6 +5,7 @@
 
 #include "cache.h"
 #include "common/log.h"
+#include "common/assert.h"
 #include "data.h"
 #include "fetch.h"
 #include "imgui.h"
@@ -14,15 +15,18 @@
 namespace {
 // The APP Data
 //---------------------------------------------
-int graph_range_idx = 6;
-//mdtmp why not array?
-const std::vector<const char*> graph_valid_range = {
-    "5d", "1mo", "3mo", "6mo", "1y", "2y", "5y", "10y", "ytd", "max"};
+bool error_code_422 = false;
+//---------------------------------------------
+int graph_range_idx = 0;
+const std::array<const char*, 11> graph_valid_range = {
+    "1d", "5d", "1mo", "3mo", "6mo", "1y", "2y", "5y", "10y", "ytd", "max"};
+
+int graph_interval_idx = 0;
+const std::array<const char*, 9> graph_valid_interval = {"2m", "5m", "15m", "30m", "1h", "1d", "1w", "1m", "1y"};
+
+//---------------------------------------------
 int graph_range_start_offset = 0;
 int graph_range_end_offset = 0;
-
-//mdtmp why not array?
-const std::vector<const char*> graph_valid_interval = {"1m", "2m", "5m", "15m", "30m", "1h", "4h", "1d", "1w", "1m", "1y"};
 
 //---------------------------------------------
 std::vector<graph_data> graph_datas;
@@ -46,19 +50,82 @@ std::vector<fetch_args> curr_requests;
 int waiting_for_requests = -1;
 
 //---------------------------------------------
-//mdtmp this algorithm only support one interval (day).
-void fill_date(std::vector<float>& dates) {
-    float now = (float)time(0);
-    float time_value = now;
-    float every_five_days = 0;
-    for (int i = dates.size() - 1; i >= 0; i--, every_five_days++) {
+void fill_date(std::vector<float>& dates, const char* interval_str) {
+    float time_increment_sec;
+    float jump_increment_sec;
+    float jump_threshold_iteration;
+
+    // Stock Market opened 6.5 hours.
+    const float OPEN_MINUTES = 6.5f * 60.f;
+    if(strcmp("1m", interval_str) == 0) {
+      time_increment_sec = 60.f;
+      jump_increment_sec = 17.5 * 3600.f;
+      jump_threshold_iteration = OPEN_MINUTES;
+    }
+    else if(strcmp("2m", interval_str) == 0) {
+      time_increment_sec = 60.f * 2.f;
+      jump_increment_sec = 17.5 * 3600.f;
+      jump_threshold_iteration = OPEN_MINUTES / 2.f;
+    }
+    else if(strcmp("5m", interval_str) == 0) {
+      time_increment_sec = 60.f * 5.f;
+      jump_increment_sec = 17.5 * 3600.f;
+      jump_threshold_iteration = OPEN_MINUTES / 5.f;
+    }
+    else if(strcmp("15m", interval_str) == 0) {
+      time_increment_sec = 60.f * 15.f;
+      jump_increment_sec = 17.5 * 3600.f;
+      jump_threshold_iteration = OPEN_MINUTES / 15.f;
+    }
+    else if(strcmp("30m", interval_str) == 0) {
+      time_increment_sec = 60.f * 30.f;
+      jump_increment_sec = 17.5 * 3600.f;
+      jump_threshold_iteration = OPEN_MINUTES / 30.f;
+    }
+    else if(strcmp("1h", interval_str) == 0) {
+      time_increment_sec = 3600.f;
+      jump_increment_sec = 17.5 * 3600.f;
+      jump_threshold_iteration = OPEN_MINUTES / 60.f;
+    }
+    else if(strcmp("4h", interval_str) == 0) {
+      time_increment_sec = 3600.f * 4.f;
+      jump_increment_sec = 17.5 * 3600.f;
+      jump_threshold_iteration = OPEN_MINUTES / 60.f / 4.f;
+    }
+    else if(strcmp("1d", interval_str) == 0) {
+      time_increment_sec = 24.f * 3600.f;
+      jump_increment_sec = 2.f * 24.f * 3600.f;
+      jump_threshold_iteration = 5;
+    }
+    else if(strcmp("1w", interval_str) == 0) {
+      time_increment_sec = 24.f * 3600.f * 7.f;
+      jump_increment_sec = 0.f;
+      jump_threshold_iteration = -1.f;
+    }
+    else if(strcmp("1m", interval_str) == 0) {
+      time_increment_sec = 24.f * 3600.f * 30.5f;
+      jump_increment_sec = 0.f;
+      jump_threshold_iteration = -1.f;
+    }
+    else if(strcmp("1y", interval_str) == 0) {
+      time_increment_sec = 24.f * 3600.f * 364.75f;
+      jump_increment_sec = 0.f;
+      jump_threshold_iteration = -1.f;
+    }
+    else {
+      ASSERT(0);
+    }
+
+    const float NOW = (float)time(0);
+    float time_value = NOW;
+    float jump_iteration = 1;
+    for (int i = dates.size() - 1; i >= 0; i--, jump_iteration++) {
       dates[i] = time_value;
-      time_value -= 24.f * 3600.f;
-      if (every_five_days >= 4) {
-        every_five_days = 0;
-        // Approximation algorithm to skip the weekend.
-        time_value -= 24.f * 3600.f;
-        time_value -= 24.f * 3600.f;
+      time_value -= time_increment_sec;
+      if (jump_iteration >= jump_threshold_iteration) {
+        jump_iteration = 1;
+        // Approximation algorithm to skip the weekend or off-hours.
+        time_value -= jump_increment_sec;
       }
     }
 }
@@ -100,7 +167,7 @@ void on_done() {
       LOG_ERROR("Values Size of first request is empty : %zu", size);
     }
     graph_x_datas.resize(size);
-    fill_date(graph_x_datas);
+    fill_date(graph_x_datas, graph_valid_interval[graph_interval_idx]);
   }
 
   waiting_for_requests = -1;
@@ -118,14 +185,15 @@ std::function<void(const graph_cb_args& add)> on_success_cb =
       }
     };
 
-//mdtmp add error_code arguments
-std::function<void(const graph_cb_args& add)> on_failure_cb =
-    [](const graph_cb_args& add) {
-//mdtmp on failuer, get error code, it code is 422. Interval & range is a mismatch.
+std::function<void(const graph_cb_args& add, int error_code)> on_failure_cb =
+    [](const graph_cb_args& add, int error_code) {
       LOG_ERROR("Request failed. Index %zu", add.index);
       waiting_for_requests--;
       if (waiting_for_requests == 0) {
         on_done();
+      }
+      if(error_code == 422) {
+        error_code_422 = true;
       }
     };
 }  // namespace
@@ -201,7 +269,20 @@ void header_show() {
         graph_range_idx = graph_valid_range.size() - 1;
     }
   }
-//mdtmp add ui for graph_valid_interval
+  {
+    ImGui::Text("Interval : %s", graph_valid_interval[graph_interval_idx]);
+    ImGui::SameLine();
+    if (ImGui::ArrowButton("##left_interval", ImGuiDir_Left)) {
+      graph_interval_idx--;
+      if (graph_interval_idx < 0) graph_interval_idx = 0;
+    }
+    ImGui::SameLine();
+    if (ImGui::ArrowButton("##right_interval", ImGuiDir_Right)) {
+      graph_interval_idx++;
+      if (graph_interval_idx >= graph_valid_interval.size())
+        graph_interval_idx = graph_valid_interval.size() - 1;
+    }
+  }
   {
     ImGui::BeginDisabled(waiting_for_requests != -1);
     if (ImGui::Button("Load")) {
@@ -237,10 +318,10 @@ void header_show() {
 
       waiting_for_requests = graph_datas.size();
       for (size_t i = 0; i < graph_datas.size(); i++) {
-//mdtmp add graph_valid_interval to fetch request
         curr_requests.push_back({
             .index = i,
             .range = graph_valid_range[graph_range_idx],
+            .interval = graph_valid_interval[graph_interval_idx],
             .stock_symbol = graph_datas[i].stock_symbol,
             .on_success = on_success_cb,
             .on_failure = on_failure_cb,
@@ -322,6 +403,21 @@ void header_show() {
 }
 
 //---------------------------------------------
+void error_show() {
+  if (error_code_422) {
+    ImGui::OpenPopup("Fetch Error : 422");
+    error_code_422 = false;
+  }
+
+  if (ImGui::BeginPopupModal("Fetch Error : 422", NULL, ImGuiWindowFlags_AlwaysAutoResize))
+  {
+      ImGui::Text("Relation between Range and Interval is invalid.\nReceived 422 error code from Yahoo finance request.");
+      if (ImGui::Button("Close", ImVec2(120, 0))) { ImGui::CloseCurrentPopup(); }
+      ImGui::EndPopup();
+  }
+}
+
+//---------------------------------------------
 void ui_init() { ImPlot::GetStyle().UseLocalTime = true; }
 
 //---------------------------------------------
@@ -336,6 +432,8 @@ void ui_show() {
   header_show();
 
   implot_show();
+
+  error_show();
 
   ImGui::End();
 }

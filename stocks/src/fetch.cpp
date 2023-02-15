@@ -17,12 +17,11 @@ namespace {
     LOG_ERROR("Downloading %s failed, HTTP failure status code: %d.\n", fetch->url,
            fetch->status);
 
+    int error_code = fetch->status;
     fetch_args& args = *static_cast<fetch_args*>(fetch->userData);
-
     emscripten_fetch_close(fetch);  // Also free data on failure.
 
-  //mdtmp pass error code here fetch->status
-    args.on_failure({.values={}, .index=args.index});
+    args.on_failure({.values={}, .index=args.index}, error_code);
   };
 
 //---------------------------------------------
@@ -65,8 +64,7 @@ void fetch_stock(fetch_args& args) {
 // URL behind proxy.
 // yahoo finance data query
 // https://query1.finance.yahoo.com/v8/finance/chart/%s?metrics=high...
-//mdtmp add interval
-  FMT_STACK_STR(buffer, 300, "yahoo/v8/finance/chart/%s?metrics=high?&interval=1d&range=%s", args.stock_symbol, args.range);
+  FMT_STACK_STR(buffer, 300, "yahoo/v8/finance/chart/%s?metrics=high?&interval=%s&range=%s", args.stock_symbol, args.interval, args.range);
 
 #ifdef DEBUG_REQUEST
   LOG_INFO("GET stocks info : %s", buffer);

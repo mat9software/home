@@ -2,6 +2,8 @@
 #13
 Summary : Add interval Ranges.
 
+Only missing date algorithm.
+
 #13
 
 #12
@@ -33,5 +35,5 @@ Summary : If parse fail. Load button is disabled for ever.
 #10
 
 #14
-Summary : If one stock doesn't have a full history, it breaks.
+Summary : If one stock doesn't have a full history, it breaks. (Or different length)
 #14
