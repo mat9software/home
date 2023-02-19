@@ -3,21 +3,22 @@
 PROGRAM = create_cpp
 
 BUILD_DIR = bin
+OUT_DIR = out # Temporary tools output
 CXX = g++
 CPPFLAGS += -Wall -Wformat -Os
 LDFLAGS =
 EXE =
 CXXFLAGS =
 
-OBJS = main.cpp
+OBJS = src/main.cpp
 
 ifeq ($(PROGRAM), create_cpp)
-OBJS += create_cpp.cpp
+OBJS += src/create_cpp.cpp
 DEFINES += -DPROGRAM_CREATE_CPP
 EXE = create_cpp.out
 endif
 ifeq ($(PROGRAM), hello)
-OBJS += hello.cpp
+OBJS += src/hello.cpp
 DEFINES += -DPROGRAM_HELLO
 EXE = hello.out
 endif
@@ -34,4 +35,4 @@ $(BUILD_DIR):
 	mkdir $@
 
 clean:
-	rm -r $(BUILD_DIR)
+	rm -rf $(BUILD_DIR) $(OUT_DIR)
