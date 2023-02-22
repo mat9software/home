@@ -104,9 +104,21 @@ std::vector<float> parse_request(char* buffer) {
   const int size =
       document["chart"]["result"][0]["indicators"]["quote"][0]["close"].Size();
   for (int i = 1; i < size; i++) {
+    if(!document["chart"]["result"][0]["indicators"]["quote"][0]["close"][i].IsDouble()) {
+      if(!document["chart"]["result"][0]["indicators"]["quote"][0]["close"][i].IsInt()) {
+        ret.push_back(
+            document["chart"]["result"][0]["indicators"]["quote"][0]["close"][i]
+                .GetInt());
+        continue;
+      }
+
+      LOG_ERROR("Error parsing Double.");
+      continue;
+    }
+   
     ret.push_back(
         document["chart"]["result"][0]["indicators"]["quote"][0]["close"][i]
-            .GetFloat());
+            .GetDouble());
   }
 
   return ret;

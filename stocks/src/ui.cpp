@@ -4,8 +4,8 @@
 #include <string.h>
 
 #include "cache.h"
-#include "common/log.h"
 #include "common/assert.h"
+#include "common/log.h"
 #include "data.h"
 #include "fetch.h"
 #include "imgui.h"
@@ -22,7 +22,8 @@ const std::array<const char*, 11> graph_valid_range = {
     "1d", "5d", "1mo", "3mo", "6mo", "1y", "2y", "5y", "10y", "ytd", "max"};
 
 int graph_interval_idx = 0;
-const std::array<const char*, 9> graph_valid_interval = {"2m", "5m", "15m", "30m", "1h", "1d", "1w", "1m", "1y"};
+const std::array<const char*, 9> graph_valid_interval = {
+    "2m", "5m", "15m", "30m", "1h", "1d", "1w", "1m", "1y"};
 
 //---------------------------------------------
 int graph_range_start_offset = 0;
@@ -50,93 +51,96 @@ std::vector<fetch_args> curr_requests;
 int waiting_for_requests = -1;
 
 //---------------------------------------------
+// FIXME Algorithm is disabled. It is broken and needs to be fixed.
 void fill_date(std::vector<float>& dates, const char* interval_str) {
-    float time_increment_sec;
-    float jump_increment_sec;
-    float jump_threshold_iteration;
+  float time_increment_sec;
+  float jump_increment_sec;
+  float jump_threshold_iteration;
 
-    // Stock Market opened 6.5 hours.
-    const float OPEN_MINUTES = 6.5f * 60.f;
-    if(strcmp("1m", interval_str) == 0) {
-      time_increment_sec = 60.f;
-      jump_increment_sec = 17.5 * 3600.f;
-      jump_threshold_iteration = OPEN_MINUTES;
-    }
-    else if(strcmp("2m", interval_str) == 0) {
-      time_increment_sec = 60.f * 2.f;
-      jump_increment_sec = 17.5 * 3600.f;
-      jump_threshold_iteration = OPEN_MINUTES / 2.f;
-    }
-    else if(strcmp("5m", interval_str) == 0) {
-      time_increment_sec = 60.f * 5.f;
-      jump_increment_sec = 17.5 * 3600.f;
-      jump_threshold_iteration = OPEN_MINUTES / 5.f;
-    }
-    else if(strcmp("15m", interval_str) == 0) {
-      time_increment_sec = 60.f * 15.f;
-      jump_increment_sec = 17.5 * 3600.f;
-      jump_threshold_iteration = OPEN_MINUTES / 15.f;
-    }
-    else if(strcmp("30m", interval_str) == 0) {
-      time_increment_sec = 60.f * 30.f;
-      jump_increment_sec = 17.5 * 3600.f;
-      jump_threshold_iteration = OPEN_MINUTES / 30.f;
-    }
-    else if(strcmp("1h", interval_str) == 0) {
-      time_increment_sec = 3600.f;
-      jump_increment_sec = 17.5 * 3600.f;
-      jump_threshold_iteration = OPEN_MINUTES / 60.f;
-    }
-    else if(strcmp("4h", interval_str) == 0) {
-      time_increment_sec = 3600.f * 4.f;
-      jump_increment_sec = 17.5 * 3600.f;
-      jump_threshold_iteration = OPEN_MINUTES / 60.f / 4.f;
-    }
-    else if(strcmp("1d", interval_str) == 0) {
-      time_increment_sec = 24.f * 3600.f;
-      jump_increment_sec = 2.f * 24.f * 3600.f;
-      jump_threshold_iteration = 5;
-    }
-    else if(strcmp("1w", interval_str) == 0) {
-      time_increment_sec = 24.f * 3600.f * 7.f;
-      jump_increment_sec = 0.f;
-      jump_threshold_iteration = -1.f;
-    }
-    else if(strcmp("1m", interval_str) == 0) {
-      time_increment_sec = 24.f * 3600.f * 30.5f;
-      jump_increment_sec = 0.f;
-      jump_threshold_iteration = -1.f;
-    }
-    else if(strcmp("1y", interval_str) == 0) {
-      time_increment_sec = 24.f * 3600.f * 364.75f;
-      jump_increment_sec = 0.f;
-      jump_threshold_iteration = -1.f;
-    }
-    else {
-      ASSERT(0);
-    }
+  // Stock Market opened 6.5 hours.
+  const float OPEN_MINUTES = 6.5f * 60.f;
+  if (strcmp("1m", interval_str) == 0) {
+    time_increment_sec = 60.f;
+    jump_increment_sec = 17.5 * 3600.f;
+    jump_threshold_iteration = OPEN_MINUTES;
+  } else if (strcmp("2m", interval_str) == 0) {
+    time_increment_sec = 60.f * 2.f;
+    jump_increment_sec = 17.5 * 3600.f;
+    jump_threshold_iteration = OPEN_MINUTES / 2.f;
+  } else if (strcmp("5m", interval_str) == 0) {
+    time_increment_sec = 60.f * 5.f;
+    jump_increment_sec = 17.5 * 3600.f;
+    jump_threshold_iteration = OPEN_MINUTES / 5.f;
+  } else if (strcmp("15m", interval_str) == 0) {
+    time_increment_sec = 60.f * 15.f;
+    jump_increment_sec = 17.5 * 3600.f;
+    jump_threshold_iteration = OPEN_MINUTES / 15.f;
+  } else if (strcmp("30m", interval_str) == 0) {
+    time_increment_sec = 60.f * 30.f;
+    jump_increment_sec = 17.5 * 3600.f;
+    jump_threshold_iteration = OPEN_MINUTES / 30.f;
+  } else if (strcmp("1h", interval_str) == 0) {
+    time_increment_sec = 3600.f;
+    jump_increment_sec = 17.5 * 3600.f;
+    jump_threshold_iteration = OPEN_MINUTES / 60.f;
+  } else if (strcmp("4h", interval_str) == 0) {
+    time_increment_sec = 3600.f * 4.f;
+    jump_increment_sec = 17.5 * 3600.f;
+    jump_threshold_iteration = OPEN_MINUTES / 60.f / 4.f;
+  } else if (strcmp("1d", interval_str) == 0) {
+    time_increment_sec = 24.f * 3600.f;
+    jump_increment_sec = 2.f * 24.f * 3600.f;
+    jump_threshold_iteration = 5;
+  } else if (strcmp("1w", interval_str) == 0) {
+    time_increment_sec = 24.f * 3600.f * 7.f;
+    jump_increment_sec = 0.f;
+    jump_threshold_iteration = -1.f;
+  } else if (strcmp("1m", interval_str) == 0) {
+    time_increment_sec = 24.f * 3600.f * 30.5f;
+    jump_increment_sec = 0.f;
+    jump_threshold_iteration = -1.f;
+  } else if (strcmp("1y", interval_str) == 0) {
+    time_increment_sec = 24.f * 3600.f * 364.75f;
+    jump_increment_sec = 0.f;
+    jump_threshold_iteration = -1.f;
+  } else {
+    ASSERT(0);
+  }
 
-    const float NOW = (float)time(0);
-    float time_value = NOW;
-    float jump_iteration = 1;
-    for (int i = dates.size() - 1; i >= 0; i--, jump_iteration++) {
-      dates[i] = time_value;
-      time_value -= time_increment_sec;
-      if (jump_iteration >= jump_threshold_iteration) {
-        jump_iteration = 1;
-        // Approximation algorithm to skip the weekend or off-hours.
-        time_value -= jump_increment_sec;
-      }
+  // FIXME Algorithm is disabled. It is broken and needs to be fixed.
+  // Remove treshold_iteration + increment.
+  jump_increment_sec = 0.f;
+  jump_threshold_iteration = -1.f;
+
+  const float NOW = (float)time(0);
+  float time_value = NOW;
+  float jump_iteration = 1;
+  for (int i = dates.size() - 1; i >= 0; i--, jump_iteration++) {
+    dates[i] = time_value;
+    time_value -= time_increment_sec;
+    if (jump_iteration >= jump_threshold_iteration) {
+      jump_iteration = 1;
+      // Approximation algorithm to skip the weekend or off-hours.
+      time_value -= jump_increment_sec;
     }
+  }
 }
-
 //---------------------------------------------
-void on_done() {
+void calculate_graph() {
   for (auto& it : graph_datas) {
     auto& vec = it.values;
 
-    const auto min = *min_element(vec.begin(), vec.end());
-    const auto max = *max_element(vec.begin(), vec.end());
+    if (graph_range_start_offset + graph_range_end_offset >= vec.size()) {
+      LOG_ERROR("Offset invalid. Offset greater then size. offset:%d|size:%zu",
+                graph_range_start_offset + graph_range_end_offset,
+                it.values.size());
+      continue;
+    }
+
+    const auto min = *min_element(vec.begin() + graph_range_start_offset,
+                                  vec.end() - graph_range_end_offset);
+    const auto max = *max_element(vec.begin() + graph_range_start_offset,
+                                  vec.end() - graph_range_end_offset);
     it.min = min - (abs(min) * 0.1);  // add 10% on graph value.
     it.max = max + (abs(max) * 0.1);  // add 10% on graph value.
 
@@ -149,7 +153,7 @@ void on_done() {
     it.ratio_values.reserve(vec.size());
     if (!vec.empty()) {
       for (auto& v : vec) {
-        it.ratio_values.push_back(v / vec[0] * 100.f);
+        it.ratio_values.push_back(v / vec[graph_range_start_offset] * 100.f);
       }
     }
 
@@ -169,6 +173,11 @@ void on_done() {
     graph_x_datas.resize(size);
     fill_date(graph_x_datas, graph_valid_interval[graph_interval_idx]);
   }
+}
+
+//---------------------------------------------
+void on_done() {
+  calculate_graph();
 
   waiting_for_requests = -1;
 }
@@ -192,7 +201,7 @@ std::function<void(const graph_cb_args& add, int error_code)> on_failure_cb =
       if (waiting_for_requests == 0) {
         on_done();
       }
-      if(error_code == 422) {
+      if (error_code == 422) {
         error_code_422 = true;
       }
     };
@@ -215,10 +224,10 @@ void implot_show() {
             it.values.size());
       }
 
-      ImPlot::PlotLine(it.stock_symbol,
-                       &graph_x_datas.data()[graph_range_start_offset],
-                       &it.ratio_values.data()[graph_range_start_offset],
-                       it.values.size() - graph_range_end_offset - graph_range_start_offset);
+      ImPlot::PlotLine(
+          it.stock_symbol, &graph_x_datas.data()[graph_range_start_offset],
+          &it.ratio_values.data()[graph_range_start_offset],
+          it.values.size() - graph_range_end_offset - graph_range_start_offset);
     }
     ImPlot::EndPlot();
   }
@@ -234,10 +243,10 @@ void implot_show() {
             it.values.size());
       }
 
-      ImPlot::PlotLine(it.stock_symbol,
-                       &graph_x_datas.data()[graph_range_start_offset],
-                       &it.values.data()[graph_range_start_offset],
-                       it.values.size() - graph_range_end_offset - graph_range_start_offset);
+      ImPlot::PlotLine(
+          it.stock_symbol, &graph_x_datas.data()[graph_range_start_offset],
+          &it.values.data()[graph_range_start_offset],
+          it.values.size() - graph_range_end_offset - graph_range_start_offset);
     }
     ImPlot::EndPlot();
   }
@@ -339,28 +348,34 @@ void header_show() {
     if (ImGui::ArrowButton("##left_range_start_offset_100", ImGuiDir_Left)) {
       graph_range_start_offset -= 100;
       if (graph_range_start_offset < 0) graph_range_start_offset = 0;
+      calculate_graph();
     }
     ImGui::SameLine();
     if (ImGui::ArrowButton("##left_range_start_offset_10", ImGuiDir_Left)) {
       graph_range_start_offset -= 10;
       if (graph_range_start_offset < 0) graph_range_start_offset = 0;
+      calculate_graph();
     }
     ImGui::SameLine();
     if (ImGui::ArrowButton("##left_range_start_offset", ImGuiDir_Left)) {
       graph_range_start_offset--;
       if (graph_range_start_offset < 0) graph_range_start_offset = 0;
+      calculate_graph();
     }
     ImGui::SameLine();
     if (ImGui::ArrowButton("##right_range_start_offset", ImGuiDir_Right)) {
       graph_range_start_offset++;
+      calculate_graph();
     }
     ImGui::SameLine();
     if (ImGui::ArrowButton("##right_range_start_offset_10", ImGuiDir_Right)) {
       graph_range_start_offset += 10;
+      calculate_graph();
     }
     ImGui::SameLine();
     if (ImGui::ArrowButton("##right_range_start_offset_100", ImGuiDir_Right)) {
       graph_range_start_offset += 100;
+      calculate_graph();
     }
   }
   {
@@ -369,28 +384,34 @@ void header_show() {
     if (ImGui::ArrowButton("##left_range_end_offset_100", ImGuiDir_Left)) {
       graph_range_end_offset -= 100;
       if (graph_range_end_offset < 0) graph_range_end_offset = 0;
+      calculate_graph();
     }
     ImGui::SameLine();
     if (ImGui::ArrowButton("##left_range_end_offset_10", ImGuiDir_Left)) {
       graph_range_end_offset -= 10;
       if (graph_range_end_offset < 0) graph_range_end_offset = 0;
+      calculate_graph();
     }
     ImGui::SameLine();
     if (ImGui::ArrowButton("##left_range_end_offset", ImGuiDir_Left)) {
       graph_range_end_offset--;
       if (graph_range_end_offset < 0) graph_range_end_offset = 0;
+      calculate_graph();
     }
     ImGui::SameLine();
     if (ImGui::ArrowButton("##right_range_end_offset", ImGuiDir_Right)) {
       graph_range_end_offset++;
+      calculate_graph();
     }
     ImGui::SameLine();
     if (ImGui::ArrowButton("##right_range_end_offset_10", ImGuiDir_Right)) {
       graph_range_end_offset += 10;
+      calculate_graph();
     }
     ImGui::SameLine();
     if (ImGui::ArrowButton("##right_range_end_offset_100", ImGuiDir_Right)) {
       graph_range_end_offset += 100;
+      calculate_graph();
     }
   }
 
@@ -399,7 +420,7 @@ void header_show() {
     cache_rm_all();
     graph_datas.clear();
   }
-#endif //ENABLE_CACHE
+#endif  // ENABLE_CACHE
 }
 
 //---------------------------------------------
@@ -409,11 +430,15 @@ void error_show() {
     error_code_422 = false;
   }
 
-  if (ImGui::BeginPopupModal("Fetch Error : 422", NULL, ImGuiWindowFlags_AlwaysAutoResize))
-  {
-      ImGui::Text("Relation between Range and Interval is invalid.\nReceived 422 error code from Yahoo finance request.");
-      if (ImGui::Button("Close", ImVec2(120, 0))) { ImGui::CloseCurrentPopup(); }
-      ImGui::EndPopup();
+  if (ImGui::BeginPopupModal("Fetch Error : 422", NULL,
+                             ImGuiWindowFlags_AlwaysAutoResize)) {
+    ImGui::Text(
+        "Relation between Range and Interval is invalid.\nReceived 422 error "
+        "code from Yahoo finance request.");
+    if (ImGui::Button("Close", ImVec2(120, 0))) {
+      ImGui::CloseCurrentPopup();
+    }
+    ImGui::EndPopup();
   }
 }
 
