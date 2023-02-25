@@ -8,7 +8,7 @@
 #include <SDL.h>
 #include <SDL_opengles2.h>
 #include "test.h"
-
+#include "init.h"
 
 // Emscripten requires to have full control over the main loop. We're going to store our SDL book-keeping variables globally.
 // Having a single function that acts as a loop prevents us to store state in the stack of said function. So we need some location for this.
@@ -17,11 +17,13 @@ SDL_GLContext   g_GLContext = NULL;
 
 static void main_loop(void*);
 static void run_test();
+static void run_init();
 
 //---------------------------------------------
 int main(int, char**)
 {
-    run_test();
+   run_test();
+   run_init();
 
     // Setup SDL
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_GAMECONTROLLER) != 0)
@@ -143,4 +145,8 @@ static void main_loop(void* arg)
 static void run_test()
 {
   test_run();
+}
+static void run_init()
+{
+  init();
 }

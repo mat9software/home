@@ -1,0 +1,18 @@
+---------- TODO ----------
+#1
+Import C library from other project.
+Add Unit Test and documentation.
+#1
+
+#2
+Change Makefile for auto detect dependancy.
+#2
+
+#3
+Compile for 2 targets. Emscripten + Linux.
+#3
+
+#5
+Add symlink for 3rd party instead.
+#5
+

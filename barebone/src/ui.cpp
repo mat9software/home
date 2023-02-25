@@ -6,6 +6,7 @@
 #include <string.h>
 
 #include "imgui.h"
+#include "emscripten.h"
 namespace {
   bool ui_show_demo_window = false;
 }
@@ -25,6 +26,23 @@ void ui_show() {
   ImGui::Text("Time %.1f", ImGui::GetTime());
 
   ImGui::Text("Hello World");
+
+  if (ImGui::Button("Load Ini File")) {
+    ImGui::LoadIniSettingsFromDisk("/offline/imgui.ini");
+    EM_ASM(FS.syncfs(function(err) {
+      if (err) {
+        console.log("cache_put : Sync failed" + err);
+      }
+    }););
+  }
+  if (ImGui::Button("Save Ini File")) {
+    ImGui::SaveIniSettingsToDisk("/offline/imgui.ini");
+    EM_ASM(FS.syncfs(function(err) {
+      if (err) {
+        console.log("cache_put : Sync failed" + err);
+      }
+    }););
+  }
 
   ImGui::End();
 }

@@ -1,18 +1,3 @@
-#
-# Makefile to use with emscripten
-# See https://emscripten.org/docs/getting_started/downloads.html
-# for installation instructions.
-#
-# This Makefile assumes you have loaded emscripten's environment.
-# (On Windows, you may need to execute emsdk_env.bat or encmdprompt.bat ahead)
-#
-# Running `make` will produce three files:
-#  - web/index.html
-#  - web/index.js
-#  - web/index.wasm
-#
-# All three are needed to run the demo.
-
 CC = emcc
 CXX = em++
 WEB_DIR = web
@@ -22,7 +7,7 @@ SRC_DIR = src/
 IMGUI_DIR = ../3rdparty/imgui/
 RAPID_JSON_DIR = ../3rdparty/rapidjson/include/
 BUILD_DIR = build
-SOURCES = $(SRC_DIR)/main.cpp $(SRC_DIR)/dockspace.cpp  $(SRC_DIR)/ui.cpp   $(SRC_DIR)/utils.cpp $(SRC_DIR)/test.cpp
+SOURCES = $(SRC_DIR)/main.cpp $(SRC_DIR)/dockspace.cpp  $(SRC_DIR)/ui.cpp   $(SRC_DIR)/utils.cpp $(SRC_DIR)/test.cpp $(SRC_DIR)/init.cpp
 SOURCES += $(IMGUI_DIR)/imgui.cpp $(IMGUI_DIR)/imgui_demo.cpp $(IMGUI_DIR)/imgui_draw.cpp $(IMGUI_DIR)/imgui_tables.cpp $(IMGUI_DIR)/imgui_widgets.cpp
 SOURCES += $(IMGUI_DIR)/backends/imgui_impl_sdl2.cpp $(IMGUI_DIR)/backends/imgui_impl_opengl3.cpp
 OBJS = $(addprefix $(BUILD_DIR)/, $(addsuffix .o, $(basename $(notdir $(SOURCES)))))
@@ -49,13 +34,14 @@ LDFLAGS += -s WASM=1 -s ALLOW_MEMORY_GROWTH=1 -s NO_EXIT_RUNTIME=0 -s ASSERTIONS
 # The Makefile for this example project suggests embedding the misc/fonts/ folder into our application, it will then be accessible as "/fonts"
 # See documentation for more details: https://emscripten.org/docs/porting/files/packaging_files.html
 # (Default value is 0. Set to 1 to enable file-system and include the misc/fonts/ folder as part of the build.)
-USE_FILE_SYSTEM ?= 0
+USE_FILE_SYSTEM ?= 1
 ifeq ($(USE_FILE_SYSTEM), 0)
 LDFLAGS += -s NO_FILESYSTEM=1
 CPPFLAGS += -DIMGUI_DISABLE_FILE_FUNCTIONS
 endif
 ifeq ($(USE_FILE_SYSTEM), 1)
-LDFLAGS += --no-heap-copy --preload-file ../../misc/fonts@/fonts
+LDFLAGS += --no-heap-copy --preload-file $(IMGUI_DIR)/misc/fonts@/fonts -lidbfs.js
+
 endif
 
 ##---------------------------------------------------------------------
@@ -73,13 +59,13 @@ LDFLAGS += --shell-file shell_minimal.html $(EMS) $(DEFINES)
 
 
 $(BUILD_DIR)/%.o:$(SRC_DIR)%.cpp
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c -o $@ $<
+	$(CC) $(CPPFLAGS) $(CXXFLAGS) -c -o $@ $<
 
 $(BUILD_DIR)/%.o:$(IMGUI_DIR)/%.cpp
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c -o $@ $<
+	$(CC) $(CPPFLAGS) $(CXXFLAGS) -c -o $@ $<
 
 $(BUILD_DIR)/%.o:$(IMGUI_DIR)/backends/%.cpp
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c -o $@ $<
+	$(CC) $(CPPFLAGS) $(CXXFLAGS) -c -o $@ $<
 
 all: $(BUILD_DIR) $(EXE)
 	@echo Build complete for $(EXE)
@@ -91,7 +77,7 @@ $(WEB_DIR):
 	mkdir $@
 
 $(EXE): $(OBJS) $(WEB_DIR)
-	$(CXX) -o $@ $(OBJS) $(LDFLAGS)
+	$(CC) -o $@ $(OBJS) $(LDFLAGS)
 
 clean:
 	rm -rf $(WEB_DIR) $(BUILD_DIR)
