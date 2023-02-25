@@ -2,9 +2,8 @@ CC = emcc
 CXX = em++
 WEB_DIR = web
 EXE = $(WEB_DIR)/index.html
-COMMON_DIR = ../
 SRC_DIR = src/
-IMGUI_DIR = ../3rdparty/imgui/
+IMGUI_DIR = 3rdparty/imgui/
 RAPID_JSON_DIR = ../3rdparty/rapidjson/include/
 BUILD_DIR = build
 SOURCES = $(SRC_DIR)/main.cpp $(SRC_DIR)/dockspace.cpp  $(SRC_DIR)/ui.cpp   $(SRC_DIR)/utils.cpp $(SRC_DIR)/test.cpp $(SRC_DIR)/init.cpp
@@ -48,7 +47,7 @@ endif
 ## FINAL BUILD FLAGS
 ##---------------------------------------------------------------------
 
-CPPFLAGS += -I$(COMMON_DIR) -I$(SRC_DIR) -I$(RAPID_JSON_DIR) -I$(IMGUI_DIR) -I$(IMGUI_DIR)/backends
+CPPFLAGS += -I$(SRC_DIR) -I$(RAPID_JSON_DIR) -I$(IMGUI_DIR) -I$(IMGUI_DIR)/backends
 #CPPFLAGS += -g
 CPPFLAGS += -Wall -Wformat -Os $(EMS) $(DEFINES)
 LDFLAGS += --shell-file shell_minimal.html $(EMS) $(DEFINES)
