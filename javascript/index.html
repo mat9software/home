@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no"/>
+    <!-- Debug tag for 3 next <meta/> : Prevent browser cahing -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" /> 
+    <title>Mat9 Software : Stocks Visualization</title>
+    <style>
+        body { margin: 0; background-color: black }
+        .emscripten {
+            position: absolute;
+            top: 0px;
+            left: 0px;
+            margin: 0px;
+            border: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            display: block;
+            image-rendering: optimizeSpeed;
+            image-rendering: -moz-crisp-edges;
+            image-rendering: -o-crisp-edges;
+            image-rendering: -webkit-optimize-contrast;
+            image-rendering: optimize-contrast;
+            image-rendering: crisp-edges;
+            image-rendering: pixelated;
+            -ms-interpolation-mode: nearest-neighbor;
+        }
+    </style>
+  </head>
+  <body>
+    <canvas width=1920 height=1080 class="emscripten" id="canvas" oncontextmenu="event.preventDefault()"></canvas>
+    <script src="main.js">
+    <script type='text/javascript'>
+    </script>
+  </body>
+</html>
